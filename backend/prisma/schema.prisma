@@ -1,0 +1,87 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  username     String        @unique
+  password     String
+  full_name    String
+  role         Role
+  transactions Transaction[]
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String    @unique
+  products   Product[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id                String            @id @default(uuid()) @db.Uuid
+  category_id       String            @db.Uuid
+  category          Category          @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  name              String            @unique
+  price             Int
+  is_active         Boolean           @default(true)
+  image_url         String?
+  transaction_items TransactionItem[]
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+
+  @@map("products")
+}
+
+model Transaction {
+  id             String            @id @default(uuid()) @db.Uuid
+  invoice_number String            @unique
+  cashier_id     String            @db.Uuid
+  cashier        User              @relation(fields: [cashier_id], references: [id])
+  payment_method PaymentMethod
+  total          Int
+  paid_amount    Int
+  change_amount  Int
+  items          TransactionItem[]
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id             String      @id @default(uuid()) @db.Uuid
+  transaction_id String      @db.Uuid
+  transaction    Transaction @relation(fields: [transaction_id], references: [id], onDelete: Cascade)
+  product_id     String      @db.Uuid
+  product        Product     @relation(fields: [product_id], references: [id])
+  qty            Int
+  price          Int
+  subtotal       Int
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+
+  @@map("transaction_items")
+}

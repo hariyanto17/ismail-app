@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Platform } from 'react-native';
 import { RootState } from './store';
 
-const BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://localhost:5001';
+const BASE_URL = 'https://kopiwara.168billiard.online';
 
 export const apiSlice = createApi({
   reducerPath: 'api',

@@ -166,13 +166,11 @@ class PrinterService {
           continue; // skip trailing empty lines
         }
 
-        if (line.includes('KOPI WARA')) {
-          await printer.printerAlign(printer.ALIGN.CENTER);
-          await printer.printText(line + '\n', { widthtimes: 1, heigthtimes: 1, fonttype: 1 });
-        } else if (line.startsWith('TOTAL')) {
+        if (line.startsWith('TOTAL')) {
           await printer.printerAlign(printer.ALIGN.LEFT);
           await printer.printText(line + '\n', { fonttype: 1 });
         } else if (
+          line.includes('KOPI WARA') ||
           line.includes('Jl. Yos Sudarso') ||
           line.includes('085345777') ||
           line.includes('IG: @kopi_wara') ||
@@ -266,7 +264,7 @@ class PrinterService {
       
       // Print centered header
       await printer.printerAlign(printer.ALIGN.CENTER);
-      await printer.printText(this.centerLine('KOPI WARA') + '\n', { widthtimes: 1, heigthtimes: 1, fonttype: 1 });
+      await printer.printText(this.centerLine('KOPI WARA') + '\n', {});
       await printer.printText(this.centerLine('Jl. Yos Sudarso Bajoe') + '\n', {});
       await printer.printText(this.centerLine('085345777377') + '\n', {});
       await printer.printText(this.centerLine('IG: @kopi_wara') + '\n', {});

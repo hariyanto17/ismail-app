@@ -1,5 +1,6 @@
 import { Alert, Platform } from 'react-native';
 import { BluetoothManager, BluetoothEscposPrinter } from '@vardrz/react-native-bluetooth-escpos-printer';
+import { logoBase64 } from './LogoBase64';
 
 export interface BluetoothDevice {
   name: string;
@@ -9,6 +10,59 @@ export interface BluetoothDevice {
 class PrinterService {
   private connectedDevice: BluetoothDevice | null = null;
 
+  // Helper functions for 58mm (32 characters width) formatting
+  centerLine(text: string, width: number = 32): string {
+    if (text.length >= width) return text.substring(0, width);
+    const totalSpaces = width - text.length;
+    const leftSpaces = Math.floor(totalSpaces / 2);
+    const rightSpaces = totalSpaces - leftSpaces;
+    return ' '.repeat(leftSpaces) + text + ' '.repeat(rightSpaces);
+  }
+
+  padLine(left: string, right: string, width: number = 32): string {
+    const spacesCount = width - left.length - right.length;
+    const spaces = spacesCount > 0 ? ' '.repeat(spacesCount) : ' ';
+    return left + spaces + right;
+  }
+
+  formatCurrency(value: number): string {
+    return 'Rp' + value.toLocaleString('id-ID');
+  }
+
+  formatDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    const pad = (num: number) => String(num).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  separator(): string {
+    return '--------------------------------';
+  }
+
+  async printLogo(): Promise<void> {
+    try {
+      await (BluetoothEscposPrinter as any).printPic(logoBase64, {
+        width: 180,
+        center: true,
+        paperSize: 58,
+        autoCut: false
+      });
+      await this.feed(1);
+    } catch (err) {
+      console.warn('[PrinterService] Failed to print logo:', err);
+    }
+  }
+
+  async feed(lines: number = 1): Promise<void> {
+    await (BluetoothEscposPrinter as any).printText('\n'.repeat(lines), {});
+  }
+
+  async cut(): Promise<void> {
+    if (typeof (BluetoothEscposPrinter as any).cut === 'function') {
+      await (BluetoothEscposPrinter as any).cut();
+    }
+  }
+
   async getPairedDevices(): Promise<BluetoothDevice[]> {
     try {
       const isEnabled = await BluetoothManager.isBluetoothEnabled();
@@ -17,7 +71,6 @@ class PrinterService {
       }
 
       const devicesStr = await BluetoothManager.enableBluetooth();
-      // On some platforms/versions enableBluetooth returns list of paired devices
       if (Array.isArray(devicesStr)) {
         return devicesStr.map((item: any) => {
           if (typeof item === 'string') {
@@ -31,11 +84,9 @@ class PrinterService {
         });
       }
 
-      // Fallback scan/retrieve paired devices
       const pairedResponse = await BluetoothManager.enableBluetooth();
       console.log('Bluetooth response:', pairedResponse);
       
-      // If we are on emulator or it fails, return standard mock list for testing
       return [
         { name: 'Demo Printer (58mm)', address: '00:11:22:33:44:55' },
         { name: 'Demo Printer (80mm)', address: 'AA:BB:CC:DD:EE:FF' },
@@ -50,7 +101,6 @@ class PrinterService {
   }
 
   async connect(device: BluetoothDevice): Promise<boolean> {
-    // If it's a demo device address, simulate successful connection
     if (device.address === '00:11:22:33:44:55' || device.address === 'AA:BB:CC:DD:EE:FF') {
       this.connectedDevice = device;
       console.log(`[PrinterService] Simulated connect to ${device.name}`);
@@ -74,9 +124,6 @@ class PrinterService {
 
     if (this.connectedDevice.address !== '00:11:22:33:44:55' && this.connectedDevice.address !== 'AA:BB:CC:DD:EE:FF') {
       try {
-        // Disconnect from hardware
-        // The library automatically handles connection releases, but if we need a call:
-        // BluetoothManager doesn't always have disconnect, but releasing handles:
         console.log(`[PrinterService] Disconnected from device ${this.connectedDevice.name}`);
       } catch (error) {
         console.warn('[PrinterService] Disconnect error:', error);
@@ -97,7 +144,6 @@ class PrinterService {
       return false;
     }
 
-    // If it's a demo printer, log to console and simulate success
     if (this.connectedDevice.address === '00:11:22:33:44:55' || this.connectedDevice.address === 'AA:BB:CC:DD:EE:FF') {
       console.log(`[PrinterService] (Simulated Print) to ${this.connectedDevice.name}:\n${receiptText}`);
       Alert.alert('Printing Successful', 'The receipt has been printed (Simulated).');
@@ -105,10 +151,43 @@ class PrinterService {
     }
 
     try {
-      // Configure print layout
-      await (BluetoothEscposPrinter as any).printerInit();
-      await (BluetoothEscposPrinter as any).printerAlign((BluetoothEscposPrinter as any).ALIGN.CENTER);
-      await (BluetoothEscposPrinter as any).printText(receiptText, {});
+      const printer = BluetoothEscposPrinter as any;
+      await printer.printerInit();
+
+      // Print Logo
+      await this.printLogo();
+
+      // Print line by line with correct ESC/POS styles
+      const lines = receiptText.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        if (i >= lines.length - 3 && line.trim() === '') {
+          continue; // skip trailing empty lines
+        }
+
+        if (line.includes('KOPI WARA')) {
+          await printer.printerAlign(printer.ALIGN.CENTER);
+          await printer.printText(line + '\n', { widthtimes: 1, heigthtimes: 1, fonttype: 1 });
+        } else if (line.startsWith('TOTAL')) {
+          await printer.printerAlign(printer.ALIGN.LEFT);
+          await printer.printText(line + '\n', { fonttype: 1 });
+        } else if (
+          line.includes('Jl. Yos Sudarso') ||
+          line.includes('085345777') ||
+          line.includes('IG: @kopi_wara') ||
+          line.includes('Terima Kasih')
+        ) {
+          await printer.printerAlign(printer.ALIGN.CENTER);
+          await printer.printText(line + '\n', {});
+        } else {
+          await printer.printerAlign(printer.ALIGN.LEFT);
+          await printer.printText(line + '\n', {});
+        }
+      }
+
+      await this.feed(3);
+      await this.cut();
       
       console.log('[PrinterService] Printed successfully to hardware.');
       Alert.alert('Printing Successful', 'The receipt has been printed successfully.');
@@ -120,20 +199,50 @@ class PrinterService {
     }
   }
 
-  /**
-   * Helper to format transaction data into the requested receipt layout
-   */
   formatReceipt(transaction: any): string {
-    const divider = '--------------------------------\n';
-    const border = '================================\n';
+    const divider = this.separator() + '\n';
     
-    let itemsStr = '';
-    transaction.items.forEach((item: any) => {
-      itemsStr += `${item.product_name}\n`;
-      itemsStr += `${item.qty} x IDR ${item.price} = IDR ${item.subtotal}\n`;
-    });
+    let receipt = '';
+    receipt += this.centerLine('KOPI WARA') + '\n';
+    receipt += this.centerLine('Jl. Yos Sudarso Bajoe') + '\n';
+    receipt += this.centerLine('085345777377') + '\n';
+    receipt += this.centerLine('IG: @kopi_wara') + '\n';
+    receipt += '\n'; // Only one blank line after header
 
-    return `${border}          COFFEE POS          \n${border}Invoice: ${transaction.invoice_number}\nDate: ${new Date(transaction.created_at).toLocaleString()}\nCashier: ${transaction.cashier_name}\n${divider}${itemsStr}${divider}TOTAL: IDR ${transaction.total}\nPayment: ${transaction.payment_method}\nPaid: IDR ${transaction.paid_amount}\nChange: IDR ${transaction.change_amount}\n${border}     Thank You for Visiting!    \n${border}\n\n\n`;
+    // Transaction info
+    receipt += divider;
+    receipt += `No : ${transaction.invoice_number}\n`;
+    receipt += `Tgl: ${this.formatDate(transaction.created_at)}\n`;
+    receipt += `Kasir: ${transaction.cashier_name}\n`;
+    receipt += divider;
+    receipt += '\n';
+
+    // Items list
+    transaction.items.forEach((item: any) => {
+      receipt += `${item.product_name}\n`;
+      const qtyPrice = `${item.qty} x ${this.formatCurrency(item.price)}`;
+      const subtotal = this.formatCurrency(item.subtotal);
+      receipt += this.padLine(qtyPrice, subtotal) + '\n';
+    });
+    receipt += '\n';
+
+    // Summary
+    receipt += divider;
+    receipt += this.padLine('TOTAL', this.formatCurrency(transaction.total)) + '\n';
+    receipt += '\n';
+    
+    const paymentLabel = transaction.payment_method === 'CASH' ? 'Tunai' : 'QRIS';
+    receipt += this.padLine(paymentLabel, this.formatCurrency(transaction.paid_amount)) + '\n';
+    receipt += '\n';
+    receipt += this.padLine('Kembalian', this.formatCurrency(transaction.change_amount)) + '\n';
+    receipt += divider;
+    receipt += '\n';
+
+    // Footer
+    receipt += this.centerLine('Terima Kasih ☕') + '\n';
+    receipt += this.centerLine('IG: @kopi_wara') + '\n';
+
+    return receipt;
   }
 
   async printTestPage(): Promise<void> {
@@ -141,11 +250,10 @@ class PrinterService {
       throw new Error('Printer not connected.');
     }
 
-    const testReceipt = this.generateTestReceipt();
-
     if (this.connectedDevice.address === '00:11:22:33:44:55' || this.connectedDevice.address === 'AA:BB:CC:DD:EE:FF') {
+      const testReceipt = this.generateTestReceipt();
       console.log(`[PrinterService] (Simulated Test Page) to ${this.connectedDevice.name}:\n${testReceipt}`);
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 1000)); // Simulate printing delay
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
       return;
     }
 
@@ -153,63 +261,51 @@ class PrinterService {
       const printer = BluetoothEscposPrinter as any;
       await printer.printerInit();
       
+      // Print Logo
+      await this.printLogo();
+      
       // Print centered header
       await printer.printerAlign(printer.ALIGN.CENTER);
-      await printer.printText('================================\n', {});
-      await printer.printText('          TEST PRINT            \n', { widthtimes: 1, heigthtimes: 1, fonttype: 1 });
-      await printer.printText('================================\n', {});
-      await printer.printText('Simple POS MVP\n', {});
-      await printer.printText('Bluetooth Printer Test\n', {});
+      await printer.printText(this.centerLine('KOPI WARA') + '\n', { widthtimes: 1, heigthtimes: 1, fonttype: 1 });
+      await printer.printText(this.centerLine('Jl. Yos Sudarso Bajoe') + '\n', {});
+      await printer.printText(this.centerLine('085345777377') + '\n', {});
+      await printer.printText(this.centerLine('IG: @kopi_wara') + '\n', {});
+      await this.feed(1);
       
-      // Store Details (left aligned)
+      // Divider & Trans Info
       await printer.printerAlign(printer.ALIGN.LEFT);
-      await printer.printText('--------------------------------\n', {});
-      await printer.printText('Store Name: Planet Cinema\n', {});
-      await printer.printText('--------------------------------\n', {});
+      await printer.printText(this.separator() + '\n', {});
+      await printer.printText('No : TEST-000001\n', {});
+      await printer.printText(`Tgl: ${this.formatDate(new Date().toISOString())}\n`, {});
+      await printer.printText('Kasir: Admin\n', {});
+      await printer.printText(this.separator() + '\n', {});
+      await this.feed(1);
       
-      // Status & Date
+      // Sample items
+      await printer.printText('Es Kopi Gula Aren\n', {});
+      await printer.printText(this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000)) + '\n', {});
+      
+      await printer.printText('Ice Chocolate\n', {});
+      await printer.printText(this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000)) + '\n', {});
+      await this.feed(1);
+      
+      // Summary
+      await printer.printText(this.separator() + '\n', {});
+      await printer.printText(this.padLine('TOTAL', this.formatCurrency(41000)) + '\n', { fonttype: 1 });
+      await printer.printText('\n', {});
+      await printer.printText(this.padLine('Tunai', this.formatCurrency(50000)) + '\n', {});
+      await printer.printText('\n', {});
+      await printer.printText(this.padLine('Kembalian', this.formatCurrency(9000)) + '\n', {});
+      await printer.printText(this.separator() + '\n', {});
+      await this.feed(1);
+      
+      // Footer
       await printer.printerAlign(printer.ALIGN.CENTER);
-      await printer.printText('Printer Connected Successfully\n', {});
-      await printer.printText(`Date: ${new Date().toLocaleString()}\n`, {});
+      await printer.printText(this.centerLine('Terima Kasih ☕') + '\n', {});
+      await printer.printText(this.centerLine('IG: @kopi_wara') + '\n', {});
       
-      // Characters test (left aligned)
-      await printer.printerAlign(printer.ALIGN.LEFT);
-      await printer.printText('--------------------------------\n', {});
-      await printer.printText('ABCDEFGHIJKLMNOPQRSTUVWXYZ\n', {});
-      await printer.printText('abcdefghijklmnopqrstuvwxyz\n', {});
-      await printer.printText('1234567890\n', {});
-      await printer.printText('!@#$%^&*()\n', {});
-      
-      // Indonesian text
-      await printer.printText('--------------------------------\n', {});
-      await printer.printText('Indonesian Characters\n', {});
-      await printer.printText('Terima Kasih\n', {});
-      await printer.printText('Selamat Datang\n', {});
-      await printer.printText('Pembayaran Tunai\n', {});
-      await printer.printText('Pembayaran QRIS\n', {});
-      
-      // Currency test
-      await printer.printText('--------------------------------\n', {});
-      await printer.printText('Currency\n', {});
-      await printer.printText('Rp 15.000\n', {});
-      await printer.printText('Rp 123.456\n', {});
-      await printer.printText('Rp 9.999.999\n', {});
-      await printer.printText('--------------------------------\n', {});
-      
-      // Footer instructions
-      await printer.printText('If you can read this receipt,\nyour printer is configured correctly.\n', {});
-      
-      // End Centered
-      await printer.printerAlign(printer.ALIGN.CENTER);
-      await printer.printText('================================\n', {});
-      await printer.printText('Thank You\n', {});
-      await printer.printText('================================\n', {});
-      
-      // Feed paper and cut
-      await printer.printText('\n\n\n\n', {});
-      if (typeof printer.cut === 'function') {
-        await printer.cut();
-      }
+      await this.feed(3);
+      await this.cut();
     } catch (error) {
       console.error('[PrinterService] Error printing test page:', error);
       throw error;
@@ -217,10 +313,10 @@ class PrinterService {
   }
 
   private generateTestReceipt(): string {
-    const divider = '--------------------------------\n';
-    const border = '================================\n';
-    return `${border}          TEST PRINT            \n${border}Simple POS MVP\nBluetooth Printer Test\n${divider}Store Name: Planet Cinema\n${divider}Printer Connected Successfully\nDate: ${new Date().toLocaleString()}\n${divider}ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n1234567890\n!@#$%^&*()\n${divider}Indonesian Characters\nTerima Kasih\nSelamat Datang\nPembayaran Tunai\nPembayaran QRIS\n${divider}Currency\nRp 15.000\nRp 123.456\nRp 9.999.999\n${divider}If you can read this receipt,\nyour printer is configured correctly.\n${border}           Thank You            \n${border}\n\n\n`;
+    const divider = this.separator() + '\n';
+    return `${this.centerLine('KOPI WARA')}\n${this.centerLine('Jl. Yos Sudarso Bajoe')}\n${this.centerLine('085345777377')}\n${this.centerLine('IG: @kopi_wara')}\n\n${divider}No : TEST-000001\nTgl: ${this.formatDate(new Date().toISOString())}\nKasir: Admin\n${divider}\nEs Kopi Gula Aren\n${this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000))}\n\nIce Chocolate\n${this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000))}\n\n${divider}${this.padLine('TOTAL', this.formatCurrency(41000))}\n\n${this.padLine('Tunai', this.formatCurrency(50000))}\n\n${this.padLine('Kembalian', this.formatCurrency(9000))}\n${divider}\n${this.centerLine('Terima Kasih ☕')}\n${this.centerLine('IG: @kopi_wara')}\n\n\n\n`;
   }
 }
 
 export default new PrinterService();
+

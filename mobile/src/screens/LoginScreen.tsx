@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, Image } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../redux/apiSlice';
@@ -50,9 +50,11 @@ export const LoginScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.headerContainer}>
-          <Text style={styles.logo}>⚡ POS</Text>
-          <Text style={styles.title}>Simple POS MVP</Text>
-          <Text style={styles.subtitle}>Masuk untuk mulai mengelola penjualan</Text>
+          <Image
+            source={require('../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.formCard}>
@@ -117,21 +119,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.xl,
   },
-  logo: {
-    fontSize: 48,
-    fontWeight: '800',
-    color: theme.colors.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: theme.colors.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: theme.colors.textMuted,
-    marginTop: theme.spacing.xs,
+  logoImage: {
+    width: 150,
+    height: 181,
+    alignSelf: 'center',
+    marginBottom: theme.spacing.md,
   },
   formCard: {
     backgroundColor: theme.colors.surface,

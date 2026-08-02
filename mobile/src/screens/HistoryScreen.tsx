@@ -20,11 +20,11 @@ export const HistoryScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.topHeader}>
-        <Text style={styles.title}>Sales History</Text>
+        <Text style={styles.title}>Riwayat Penjualan</Text>
       </View>
 
       {isLoading ? (
-        <Text style={styles.loadingText}>Loading history...</Text>
+        <Text style={styles.loadingText}>Memuat riwayat...</Text>
       ) : (
         <FlatList
           data={transactions}
@@ -39,13 +39,13 @@ export const HistoryScreen = ({ navigation }: any) => {
               <View style={styles.rowLeft}>
                 <Text style={styles.invoiceNum}>{item.invoice_number}</Text>
                 <Text style={styles.metaText}>
-                  {item.cashier_name} • {item.payment_method}
+                  {item.cashier_name} • {item.payment_method === 'CASH' ? 'TUNAI' : item.payment_method}
                 </Text>
                 <Text style={styles.dateText}>{new Date(item.created_at).toLocaleString()}</Text>
               </View>
               <View style={styles.rowRight}>
                 <Text style={styles.totalText}>IDR {item.total}</Text>
-                <Text style={styles.detailLink}>View Details →</Text>
+                <Text style={styles.detailLink}>Lihat Detail →</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -59,23 +59,23 @@ export const HistoryScreen = ({ navigation }: any) => {
             {selectedTx && (
               <ScrollView>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Sale details</Text>
+                  <Text style={styles.modalTitle}>Detail Penjualan</Text>
                   <TouchableOpacity style={styles.closeBtn} onPress={() => setSelectedTx(null)}>
                     <Text style={styles.closeText}>✕</Text>
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.headerInfo}>
-                  <Text style={styles.invoiceLabel}>Invoice Number</Text>
+                  <Text style={styles.invoiceLabel}>Nomor Struk</Text>
                   <Text style={styles.invoiceVal}>{selectedTx.invoice_number}</Text>
-                  <Text style={styles.metaRow}>Cashier: {selectedTx.cashier_name}</Text>
-                  <Text style={styles.metaRow}>Method: {selectedTx.payment_method}</Text>
+                  <Text style={styles.metaRow}>Kasir: {selectedTx.cashier_name}</Text>
+                  <Text style={styles.metaRow}>Metode: {selectedTx.payment_method === 'CASH' ? 'TUNAI' : selectedTx.payment_method}</Text>
                   <Text style={styles.metaRow}>
-                    Date: {new Date(selectedTx.created_at).toLocaleString()}
+                    Tanggal: {new Date(selectedTx.created_at).toLocaleString()}
                   </Text>
                 </View>
 
-                <Text style={styles.sectionHeading}>Items Purchased</Text>
+                <Text style={styles.sectionHeading}>Barang yang Dibeli</Text>
                 {selectedTx.items.map((item: any, index: number) => (
                   <View key={index} style={styles.itemDetailRow}>
                     <View style={styles.itemDetailLeft}>
@@ -94,24 +94,24 @@ export const HistoryScreen = ({ navigation }: any) => {
                     <Text style={styles.sumVal}>IDR {selectedTx.total}</Text>
                   </View>
                   <View style={styles.sumRow}>
-                    <Text style={styles.sumLabel}>Paid Amount:</Text>
+                    <Text style={styles.sumLabel}>Jumlah Bayar:</Text>
                     <Text style={styles.sumVal}>IDR {selectedTx.paid_amount}</Text>
                   </View>
                   <View style={styles.sumRow}>
-                    <Text style={styles.sumLabel}>Change Amount:</Text>
+                    <Text style={styles.sumLabel}>Kembalian:</Text>
                     <Text style={styles.sumVal}>IDR {selectedTx.change_amount}</Text>
                   </View>
                 </View>
 
                 <View style={styles.modalActions}>
                   <Button
-                    title="Reprint Receipt"
+                    title="Cetak Ulang Struk"
                     variant="secondary"
                     onPress={() => handlePrintReprint(selectedTx)}
                     style={styles.modalBtn}
                   />
                   <Button
-                    title="Close"
+                    title="Tutup"
                     onPress={() => setSelectedTx(null)}
                     style={styles.modalBtn}
                   />

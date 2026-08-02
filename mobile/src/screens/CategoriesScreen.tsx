@@ -35,7 +35,7 @@ export const CategoriesScreen = () => {
 
   const handleSave = async () => {
     if (!categoryName.trim()) {
-      Alert.alert('Validation Error', 'Category name cannot be empty');
+      Alert.alert('Kesalahan Validasi', 'Nama kategori tidak boleh kosong');
       return;
     }
 
@@ -47,21 +47,21 @@ export const CategoriesScreen = () => {
       }
       setModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Error Saving', err?.data?.message || 'Something went wrong');
+      Alert.alert('Gagal Menyimpan', err?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this category?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus kategori ini?', [
+      { text: 'Batal', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Hapus',
         style: 'destructive',
         onPress: async () => {
           try {
             await deleteCategory(id).unwrap();
           } catch (err: any) {
-            Alert.alert('Delete Failed', err?.data?.message || 'Something went wrong');
+            Alert.alert('Gagal Menghapus', err?.data?.message || 'Terjadi kesalahan');
           }
         },
       },
@@ -71,14 +71,14 @@ export const CategoriesScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.topHeader}>
-        <Text style={styles.title}>Categories</Text>
+        <Text style={styles.title}>Kategori</Text>
         <TouchableOpacity style={styles.addBtn} onPress={handleOpenAdd}>
-          <Text style={styles.addBtnText}>+ Add</Text>
+          <Text style={styles.addBtnText}>+ Tambah</Text>
         </TouchableOpacity>
       </View>
 
       {isLoading ? (
-        <Text style={styles.loadingText}>Loading categories...</Text>
+        <Text style={styles.loadingText}>Memuat kategori...</Text>
       ) : (
         <FlatList
           data={categories}
@@ -92,13 +92,13 @@ export const CategoriesScreen = () => {
                   style={[styles.actionBtn, styles.editBtn]}
                   onPress={() => handleOpenEdit(item)}
                 >
-                  <Text style={styles.actionText}>Edit</Text>
+                  <Text style={styles.actionText}>Ubah</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.deleteBtn]}
                   onPress={() => handleDelete(item.id)}
                 >
-                  <Text style={styles.actionText}>Delete</Text>
+                  <Text style={styles.actionText}>Hapus</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -109,10 +109,10 @@ export const CategoriesScreen = () => {
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingId ? 'Edit Category' : 'New Category'}</Text>
+            <Text style={styles.modalTitle}>{editingId ? 'Ubah Kategori' : 'Kategori Baru'}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Category Name"
+              placeholder="Nama Kategori"
               placeholderTextColor={theme.colors.textMuted}
               value={categoryName}
               onChangeText={setCategoryName}
@@ -120,12 +120,12 @@ export const CategoriesScreen = () => {
             />
             <View style={styles.modalActions}>
               <Button
-                title="Cancel"
+                title="Batal"
                 variant="danger"
                 onPress={() => setModalVisible(false)}
                 style={styles.halfBtn}
               />
-              <Button title="Save" onPress={handleSave} style={styles.halfBtn} />
+              <Button title="Simpan" onPress={handleSave} style={styles.halfBtn} />
             </View>
           </View>
         </View>

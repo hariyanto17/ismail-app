@@ -46,12 +46,12 @@ export const UsersScreen = () => {
 
   const handleSave = async () => {
     if (!username.trim() || !fullName.trim()) {
-      Alert.alert('Validation Error', 'Username and Full name are required');
+      Alert.alert('Kesalahan Validasi', 'Username dan Nama Lengkap wajib diisi');
       return;
     }
 
     if (!editingId && !password) {
-      Alert.alert('Validation Error', 'Password is required for new users');
+      Alert.alert('Kesalahan Validasi', 'Kata sandi wajib diisi untuk pengguna baru');
       return;
     }
 
@@ -73,21 +73,21 @@ export const UsersScreen = () => {
       }
       setModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Error Saving', err?.data?.message || 'Something went wrong');
+      Alert.alert('Gagal Menyimpan', err?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this user profile?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus profil pengguna ini?', [
+      { text: 'Batal', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Hapus',
         style: 'destructive',
         onPress: async () => {
           try {
             await deleteUser(id).unwrap();
           } catch (err: any) {
-            Alert.alert('Delete Failed', err?.data?.message || 'Something went wrong');
+            Alert.alert('Gagal Menghapus', err?.data?.message || 'Terjadi kesalahan');
           }
         },
       },
@@ -97,14 +97,14 @@ export const UsersScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.topHeader}>
-        <Text style={styles.title}>Users</Text>
+        <Text style={styles.title}>Pengguna</Text>
         <TouchableOpacity style={styles.addBtn} onPress={handleOpenAdd}>
-          <Text style={styles.addBtnText}>+ Add</Text>
+          <Text style={styles.addBtnText}>+ Tambah</Text>
         </TouchableOpacity>
       </View>
 
       {isLoading ? (
-        <Text style={styles.loadingText}>Loading users...</Text>
+        <Text style={styles.loadingText}>Memuat pengguna...</Text>
       ) : (
         <FlatList
           data={users}
@@ -123,13 +123,13 @@ export const UsersScreen = () => {
                   style={[styles.actionBtn, styles.editBtn]}
                   onPress={() => handleOpenEdit(item)}
                 >
-                  <Text style={styles.actionText}>Edit</Text>
+                  <Text style={styles.actionText}>Ubah</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.deleteBtn]}
                   onPress={() => handleDelete(item.id)}
                 >
-                  <Text style={styles.actionText}>Delete</Text>
+                  <Text style={styles.actionText}>Hapus</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -140,7 +140,7 @@ export const UsersScreen = () => {
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingId ? 'Edit User' : 'New User'}</Text>
+            <Text style={styles.modalTitle}>{editingId ? 'Ubah Pengguna' : 'Pengguna Baru'}</Text>
             
             <TextInput
               style={styles.input}
@@ -153,7 +153,7 @@ export const UsersScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Full Name"
+              placeholder="Nama Lengkap"
               placeholderTextColor={theme.colors.textMuted}
               value={fullName}
               onChangeText={setFullName}
@@ -161,7 +161,7 @@ export const UsersScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder={editingId ? 'New Password (optional)' : 'Password'}
+              placeholder={editingId ? 'Kata Sandi Baru (opsional)' : 'Kata Sandi'}
               placeholderTextColor={theme.colors.textMuted}
               secureTextEntry
               value={password}
@@ -169,14 +169,14 @@ export const UsersScreen = () => {
               autoCapitalize="none"
             />
 
-            <Text style={styles.label}>Select Role</Text>
+            <Text style={styles.label}>Pilih Peran</Text>
             <View style={styles.roleContainer}>
               <TouchableOpacity
                 style={[styles.roleBtn, role === 'CASHIER' ? styles.roleBtnSelected : null]}
                 onPress={() => setRole('CASHIER')}
               >
                 <Text style={[styles.roleTextLabel, role === 'CASHIER' ? styles.roleTextSelected : null]}>
-                  Cashier
+                  Kasir
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -191,12 +191,12 @@ export const UsersScreen = () => {
 
             <View style={styles.modalActions}>
               <Button
-                title="Cancel"
+                title="Batal"
                 variant="danger"
                 onPress={() => setModalVisible(false)}
                 style={styles.halfBtn}
               />
-              <Button title="Save" onPress={handleSave} style={styles.halfBtn} />
+              <Button title="Simpan" onPress={handleSave} style={styles.halfBtn} />
             </View>
           </View>
         </View>

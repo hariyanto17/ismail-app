@@ -106,13 +106,13 @@ export const CartScreen = ({ navigation }: any) => {
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
-      Alert.alert('Empty Cart', 'Please add some products to the cart first.');
+      Alert.alert('Keranjang Kosong', 'Silakan tambahkan beberapa produk ke keranjang terlebih dahulu.');
       return;
     }
 
     const parsedPaid = parseInt(paidAmount, 10);
     if (paymentMethod === 'CASH' && (isNaN(parsedPaid) || parsedPaid < total)) {
-      Alert.alert('Payment Error', 'Paid amount must be equal to or greater than total amount.');
+      Alert.alert('Kesalahan Pembayaran', 'Jumlah pembayaran harus sama dengan atau lebih besar dari total belanja.');
       return;
     }
 
@@ -130,8 +130,8 @@ export const CartScreen = ({ navigation }: any) => {
       if (response.success) {
         const txData = response.data;
         Alert.alert(
-          'Checkout Complete',
-          `Invoice: ${txData.invoice_number}\nTotal: IDR ${txData.total}`,
+          'Transaksi Selesai',
+          `Nomor Struk: ${txData.invoice_number}\nTotal: IDR ${txData.total}`,
           [
             {
               text: 'OK',
@@ -150,19 +150,19 @@ export const CartScreen = ({ navigation }: any) => {
           ]
         );
       } else {
-        Alert.alert('Checkout Failed', response.message || 'Unknown error');
+        Alert.alert('Transaksi Gagal', response.message || 'Kesalahan tidak diketahui');
       }
     } catch (err: any) {
-      Alert.alert('Checkout Error', err?.data?.message || 'Server connection issue');
+      Alert.alert('Kesalahan Transaksi', err?.data?.message || 'Masalah koneksi server');
     }
   };
 
   const renderCart = () => (
     <View style={{ flex: 1 }}>
       <View style={styles.cartHeader}>
-        <Text style={styles.cartHeaderTitle}>Shopping Cart</Text>
+        <Text style={styles.cartHeaderTitle}>Keranjang Belanja</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.cartCountText}>{cartItems.length} items</Text>
+          <Text style={styles.cartCountText}>{cartItems.length} barang</Text>
           {!isTablet() && (
             <TouchableOpacity onPress={() => setCartVisible(false)} style={{ marginLeft: 16 }}>
               <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>✕</Text>
@@ -203,7 +203,7 @@ export const CartScreen = ({ navigation }: any) => {
             </View>
           )}
           ListEmptyComponent={
-            <Text style={styles.emptyCartText}>No items added to cart</Text>
+            <Text style={styles.emptyCartText}>Belum ada produk di keranjang</Text>
           }
         />
       </View>
@@ -212,7 +212,7 @@ export const CartScreen = ({ navigation }: any) => {
       {cartItems.length > 0 && (
         <View style={styles.checkoutPanel}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total Amount:</Text>
+            <Text style={styles.totalLabel}>Total Belanja:</Text>
             <Text style={styles.totalValue}>IDR {total}</Text>
           </View>
 
@@ -222,7 +222,7 @@ export const CartScreen = ({ navigation }: any) => {
               style={[styles.paymentBtn, paymentMethod === 'CASH' ? styles.paymentBtnSelected : null]}
               onPress={() => setPaymentMethod('CASH')}
             >
-              <Text style={styles.paymentBtnText}>💵 CASH</Text>
+              <Text style={styles.paymentBtnText}>💵 TUNAI</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.paymentBtn, paymentMethod === 'QRIS' ? styles.paymentBtnSelected : null]}
@@ -236,25 +236,25 @@ export const CartScreen = ({ navigation }: any) => {
             <View style={styles.cashBox}>
               <TextInput
                 style={styles.cashInput}
-                placeholder="Paid Amount (IDR)"
+                placeholder="Jumlah Bayar (IDR)"
                 placeholderTextColor={theme.colors.textMuted}
                 keyboardType="number-pad"
                 value={paidAmount}
                 onChangeText={setPaidAmount}
               />
               <View style={styles.changeRow}>
-                <Text style={styles.changeLabel}>Change:</Text>
+                <Text style={styles.changeLabel}>Kembalian:</Text>
                 <Text style={styles.changeVal}>IDR {change}</Text>
               </View>
             </View>
           ) : (
             <View style={styles.qrisBox}>
-              <Text style={styles.qrisText}>QRIS Payment: IDR {total}</Text>
+              <Text style={styles.qrisText}>Pembayaran QRIS: IDR {total}</Text>
             </View>
           )}
 
           <Button
-            title="Checkout & Print"
+            title="Bayar & Cetak"
             onPress={handleCheckout}
             isLoading={isCheckingOut}
             style={styles.checkoutButton}
@@ -270,7 +270,7 @@ export const CartScreen = ({ navigation }: any) => {
       <View style={styles.topSection}>
         <TextInput
           style={styles.searchInput}
-          placeholder="🔍 Search products by name..."
+          placeholder="🔍 Cari produk berdasarkan nama..."
           placeholderTextColor={theme.colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -283,7 +283,7 @@ export const CartScreen = ({ navigation }: any) => {
               onPress={() => setSelectedCategoryId(null)}
             >
               <Text style={[styles.catText, !selectedCategoryId ? styles.catTextSelected : null]}>
-                All
+                Semua
               </Text>
             </TouchableOpacity>
             {categories.map((cat: any) => (
@@ -305,9 +305,9 @@ export const CartScreen = ({ navigation }: any) => {
       <View style={styles.splitBody}>
         {/* Left Side: Product Grid */}
         <View style={[styles.catalogContainer, !isTablet() ? { flex: 1, borderRightWidth: 0 } : null]}>
-          <Text style={styles.sectionHeading}>Product Catalog</Text>
+          <Text style={styles.sectionHeading}>Katalog Produk</Text>
           {loadingProducts ? (
-            <Text style={styles.loadingText}>Loading products...</Text>
+            <Text style={styles.loadingText}>Memuat produk...</Text>
           ) : (
             <FlatList
               key={numColumns.toString()}

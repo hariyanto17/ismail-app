@@ -53,15 +53,15 @@ export const ProductsScreen = ({ navigation }: any) => {
     const parsedPrice = parseInt(price, 10);
 
     if (!name.trim()) {
-      Alert.alert('Validation Error', 'Product name is required');
+      Alert.alert('Kesalahan Validasi', 'Nama produk wajib diisi');
       return;
     }
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
-      Alert.alert('Validation Error', 'Price must be a positive integer');
+      Alert.alert('Kesalahan Validasi', 'Harga harus berupa angka bulat positif');
       return;
     }
     if (!categoryId) {
-      Alert.alert('Validation Error', 'Please select a category');
+      Alert.alert('Kesalahan Validasi', 'Silakan pilih kategori');
       return;
     }
 
@@ -80,21 +80,21 @@ export const ProductsScreen = ({ navigation }: any) => {
       }
       setModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Error Saving', err?.data?.message || 'Something went wrong');
+      Alert.alert('Gagal Menyimpan', err?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this product?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus produk ini?', [
+      { text: 'Batal', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Hapus',
         style: 'destructive',
         onPress: async () => {
           try {
             await deleteProduct(id).unwrap();
           } catch (err: any) {
-            Alert.alert('Delete Failed', err?.data?.message || 'Something went wrong');
+            Alert.alert('Gagal Menghapus', err?.data?.message || 'Terjadi kesalahan');
           }
         },
       },
@@ -104,14 +104,14 @@ export const ProductsScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.topHeader}>
-        <Text style={styles.title}>Products</Text>
+        <Text style={styles.title}>Produk</Text>
         <TouchableOpacity style={styles.addBtn} onPress={handleOpenAdd}>
-          <Text style={styles.addBtnText}>+ Add</Text>
+          <Text style={styles.addBtnText}>+ Tambah</Text>
         </TouchableOpacity>
       </View>
 
       {loadingProducts ? (
-        <Text style={styles.loadingText}>Loading products...</Text>
+        <Text style={styles.loadingText}>Memuat produk...</Text>
       ) : (
         <FlatList
           data={products}
@@ -125,7 +125,7 @@ export const ProductsScreen = ({ navigation }: any) => {
                   {item.category_name} • IDR {item.price}
                 </Text>
                 <View style={[styles.badge, item.is_active ? styles.badgeActive : styles.badgeInactive]}>
-                  <Text style={styles.badgeText}>{item.is_active ? 'Active' : 'Inactive'}</Text>
+                  <Text style={styles.badgeText}>{item.is_active ? 'Aktif' : 'Nonaktif'}</Text>
                 </View>
               </View>
               <View style={styles.actions}>
@@ -133,13 +133,13 @@ export const ProductsScreen = ({ navigation }: any) => {
                   style={[styles.actionBtn, styles.editBtn]}
                   onPress={() => handleOpenEdit(item)}
                 >
-                  <Text style={styles.actionText}>Edit</Text>
+                  <Text style={styles.actionText}>Ubah</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.deleteBtn]}
                   onPress={() => handleDelete(item.id)}
                 >
-                  <Text style={styles.actionText}>Delete</Text>
+                  <Text style={styles.actionText}>Hapus</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -150,11 +150,11 @@ export const ProductsScreen = ({ navigation }: any) => {
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingId ? 'Edit Product' : 'New Product'}</Text>
+            <Text style={styles.modalTitle}>{editingId ? 'Ubah Produk' : 'Produk Baru'}</Text>
             
             <TextInput
               style={styles.input}
-              placeholder="Product Name"
+              placeholder="Nama Produk"
               placeholderTextColor={theme.colors.textMuted}
               value={name}
               onChangeText={setName}
@@ -162,14 +162,14 @@ export const ProductsScreen = ({ navigation }: any) => {
 
             <TextInput
               style={styles.input}
-              placeholder="Price"
+              placeholder="Harga"
               placeholderTextColor={theme.colors.textMuted}
               keyboardType="number-pad"
               value={price}
               onChangeText={setPrice}
             />
 
-            <Text style={styles.label}>Select Category</Text>
+            <Text style={styles.label}>Pilih Kategori</Text>
             <View style={styles.pickerContainer}>
               {categories.map((cat: any) => (
                 <TouchableOpacity
@@ -193,7 +193,7 @@ export const ProductsScreen = ({ navigation }: any) => {
             </View>
 
             <View style={styles.switchRow}>
-              <Text style={styles.label}>Is Active?</Text>
+              <Text style={styles.label}>Aktif?</Text>
               <Switch
                 value={isActive}
                 onValueChange={setIsActive}
@@ -203,12 +203,12 @@ export const ProductsScreen = ({ navigation }: any) => {
 
             <View style={styles.modalActions}>
               <Button
-                title="Cancel"
+                title="Batal"
                 variant="danger"
                 onPress={() => setModalVisible(false)}
                 style={styles.halfBtn}
               />
-              <Button title="Save" onPress={handleSave} style={styles.halfBtn} />
+              <Button title="Simpan" onPress={handleSave} style={styles.halfBtn} />
             </View>
           </View>
         </View>

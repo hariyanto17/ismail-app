@@ -35,11 +35,11 @@ export const LoginScreen = () => {
           })
         );
       } else {
-        Alert.alert('Login Failed', response.message || 'Unknown error');
+        Alert.alert('Masuk Gagal', response.message || 'Kesalahan tidak diketahui');
       }
     } catch (err: any) {
-      const errMsg = err?.data?.message || 'Unable to connect to server';
-      Alert.alert('Login Error', errMsg);
+      const errMsg = err?.data?.message || 'Tidak dapat terhubung ke server';
+      Alert.alert('Kesalahan Masuk', errMsg);
     }
   };
 
@@ -52,18 +52,18 @@ export const LoginScreen = () => {
         <View style={styles.headerContainer}>
           <Text style={styles.logo}>⚡ POS</Text>
           <Text style={styles.title}>Simple POS MVP</Text>
-          <Text style={styles.subtitle}>Log in to start managing sales</Text>
+          <Text style={styles.subtitle}>Masuk untuk mulai mengelola penjualan</Text>
         </View>
 
         <View style={styles.formCard}>
           <Controller
             control={control}
-            rules={{ required: 'Username is required' }}
+            rules={{ required: 'Username wajib diisi' }}
             name="username"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Username"
-                placeholder="Enter username"
+                placeholder="Masukkan username"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -75,12 +75,12 @@ export const LoginScreen = () => {
 
           <Controller
             control={control}
-            rules={{ required: 'Password is required' }}
+            rules={{ required: 'Kata sandi wajib diisi' }}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Password"
-                placeholder="Enter password"
+                label="Kata Sandi"
+                placeholder="Masukkan kata sandi"
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -92,7 +92,7 @@ export const LoginScreen = () => {
           />
 
           <Button
-            title="Log In"
+            title="Masuk"
             onPress={handleSubmit(onSubmit)}
             isLoading={isLoading}
             style={styles.loginBtn}

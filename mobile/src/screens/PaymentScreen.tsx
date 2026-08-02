@@ -40,7 +40,7 @@ export const PaymentScreen = ({ navigation }: any) => {
     // Validation
     const parsedPaid = parseInt(paidAmount, 10);
     if (paymentMethod === 'CASH' && (isNaN(parsedPaid) || parsedPaid < total)) {
-      Alert.alert('Payment Error', 'Paid amount must be equal to or greater than the total amount.');
+      Alert.alert('Kesalahan Pembayaran', 'Jumlah pembayaran harus sama dengan atau lebih besar dari total belanja.');
       return;
     }
 
@@ -58,12 +58,12 @@ export const PaymentScreen = ({ navigation }: any) => {
       if (response.success) {
         setSuccessTx(response.data);
         dispatch(clearCart());
-        Alert.alert('Checkout Complete', 'Transaction saved successfully!');
+        Alert.alert('Transaksi Selesai', 'Transaksi berhasil disimpan!');
       } else {
-        Alert.alert('Checkout Failed', response.message || 'Unknown error');
+        Alert.alert('Transaksi Gagal', response.message || 'Kesalahan tidak diketahui');
       }
     } catch (err: any) {
-      Alert.alert('Checkout Error', err?.data?.message || 'Server connection issue');
+      Alert.alert('Kesalahan Transaksi', err?.data?.message || 'Masalah koneksi server');
     }
   };
 
@@ -79,42 +79,42 @@ export const PaymentScreen = ({ navigation }: any) => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Payment Method</Text>
+      <Text style={styles.title}>Metode Pembayaran</Text>
 
       {successTx ? (
         // Checkout Success State
         <View style={styles.successCard}>
           <Text style={styles.successIcon}>🎉</Text>
-          <Text style={styles.successText}>Sale Completed!</Text>
+          <Text style={styles.successText}>Transaksi Selesai!</Text>
           <Text style={styles.invoiceNum}>{successTx.invoice_number}</Text>
 
           <View style={styles.detailsTable}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Total Amount:</Text>
+              <Text style={styles.detailLabel}>Total Belanja:</Text>
               <Text style={styles.detailVal}>IDR {successTx.total}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Payment Mode:</Text>
-              <Text style={styles.detailVal}>{successTx.payment_method}</Text>
+              <Text style={styles.detailLabel}>Metode Pembayaran:</Text>
+              <Text style={styles.detailVal}>{successTx.payment_method === 'CASH' ? 'TUNAI' : successTx.payment_method}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Paid Amount:</Text>
+              <Text style={styles.detailLabel}>Jumlah Bayar:</Text>
               <Text style={styles.detailVal}>IDR {successTx.paid_amount}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Change Amount:</Text>
+              <Text style={styles.detailLabel}>Kembalian:</Text>
               <Text style={styles.detailVal}>IDR {successTx.change_amount}</Text>
             </View>
           </View>
 
-          <Button title="🖨️ Print Receipt" onPress={handlePrint} variant="secondary" style={styles.btn} />
-          <Button title="New Transaction" onPress={handleDone} style={styles.btn} />
+          <Button title="🖨️ Cetak Struk" onPress={handlePrint} variant="secondary" style={styles.btn} />
+          <Button title="Transaksi Baru" onPress={handleDone} style={styles.btn} />
         </View>
       ) : (
         // Active Checkout Mode
         <View style={styles.card}>
           <View style={styles.amountBox}>
-            <Text style={styles.totalLabel}>TOTAL AMOUNT DUE</Text>
+            <Text style={styles.totalLabel}>TOTAL YANG HARUS DIBAYAR</Text>
             <Text style={styles.totalValue}>IDR {total}</Text>
           </View>
 
@@ -124,7 +124,7 @@ export const PaymentScreen = ({ navigation }: any) => {
               style={[styles.methodBtn, paymentMethod === 'CASH' ? styles.methodBtnSelected : null]}
               onPress={() => setPaymentMethod('CASH')}
             >
-              <Text style={styles.methodText}>💵 CASH</Text>
+              <Text style={styles.methodText}>💵 TUNAI</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.methodBtn, paymentMethod === 'QRIS' ? styles.methodBtnSelected : null]}
@@ -136,10 +136,10 @@ export const PaymentScreen = ({ navigation }: any) => {
 
           {paymentMethod === 'CASH' ? (
             <View style={styles.cashInputBox}>
-              <Text style={styles.inputLabel}>Paid Amount (IDR)</Text>
+              <Text style={styles.inputLabel}>Jumlah Bayar (IDR)</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter Cash Amount"
+                placeholder="Masukkan Jumlah Uang"
                 placeholderTextColor={theme.colors.textMuted}
                 keyboardType="number-pad"
                 value={paidAmount}
@@ -147,19 +147,19 @@ export const PaymentScreen = ({ navigation }: any) => {
                 autoFocus
               />
               <View style={styles.changeBox}>
-                <Text style={styles.changeLabel}>Change:</Text>
+                <Text style={styles.changeLabel}>Kembalian:</Text>
                 <Text style={styles.changeValue}>IDR {change}</Text>
               </View>
             </View>
           ) : (
             <View style={styles.qrisInfoBox}>
-              <Text style={styles.qrisText}>QRIS Payment Selected</Text>
-              <Text style={styles.qrisSubtext}>Scan code on POS Terminal to complete payment.</Text>
+              <Text style={styles.qrisText}>Pembayaran QRIS Dipilih</Text>
+              <Text style={styles.qrisSubtext}>Pindai kode pada Terminal POS untuk menyelesaikan pembayaran.</Text>
             </View>
           )}
 
           <Button
-            title="Complete Checkout"
+            title="Selesaikan Transaksi"
             onPress={handleCheckout}
             isLoading={isLoading}
             style={styles.checkoutBtn}

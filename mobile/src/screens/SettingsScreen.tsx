@@ -16,7 +16,7 @@ export const SettingsScreen = ({ navigation }: any) => {
       const list = await PrinterService.getPairedDevices();
       setDevices(list);
     } catch (error) {
-      Alert.alert('Bluetooth Error', 'Failed to retrieve paired devices.');
+      Alert.alert('Kesalahan Bluetooth', 'Gagal mengambil daftar perangkat tersambung.');
     } finally {
       setLoading(false);
     }
@@ -40,12 +40,12 @@ export const SettingsScreen = ({ navigation }: any) => {
       const success = await PrinterService.connect(device);
       if (success) {
         setConnectedDeviceName(device.name);
-        Alert.alert('Printer Connected', `Successfully connected to ${device.name}`);
+        Alert.alert('Printer Terhubung', `Berhasil terhubung ke ${device.name}`);
       } else {
-        Alert.alert('Connection Failed', `Could not connect to ${device.name}`);
+        Alert.alert('Koneksi Gagal', `Tidak dapat terhubung ke ${device.name}`);
       }
     } catch (error) {
-      Alert.alert('Connection Error', 'Something went wrong during pairing.');
+      Alert.alert('Kesalahan Koneksi', 'Terjadi kesalahan saat menyambungkan.');
     } finally {
       setLoading(false);
     }
@@ -54,16 +54,16 @@ export const SettingsScreen = ({ navigation }: any) => {
   const handleDisconnect = async () => {
     await PrinterService.disconnect();
     setConnectedDeviceName(null);
-    Alert.alert('Disconnected', 'Printer disconnected.');
+    Alert.alert('Terputus', 'Printer terputus.');
   };
 
   const handleTestPrint = async () => {
     setLoading(true);
     try {
       await PrinterService.printTestPage();
-      Alert.alert('Success', 'Test page printed successfully.');
+      Alert.alert('Sukses', 'Halaman uji coba berhasil dicetak.');
     } catch (error: any) {
-      Alert.alert('Printer Error', error?.message || 'Failed to print test page.');
+      Alert.alert('Kesalahan Printer', error?.message || 'Gagal mencetak halaman uji coba.');
     } finally {
       setLoading(false);
     }
@@ -72,30 +72,30 @@ export const SettingsScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.topHeader}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.title}>Pengaturan</Text>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Bluetooth Printer</Text>
+        <Text style={styles.sectionTitle}>Printer Bluetooth</Text>
 
         <View style={styles.statusBox}>
-          <Text style={styles.statusLabel}>Connection Status:</Text>
+          <Text style={styles.statusLabel}>Status Koneksi:</Text>
           <Text style={[styles.statusValue, connectedDeviceName ? styles.connected : styles.disconnected]}>
-            {connectedDeviceName ? `Connected to ${connectedDeviceName}` : 'Disconnected'}
+            {connectedDeviceName ? `Terhubung ke ${connectedDeviceName}` : 'Terputus'}
           </Text>
         </View>
 
         {connectedDeviceName ? (
           <View style={styles.actionsBox}>
-            <Button title={loading ? 'Printing...' : 'Print Test Page'} onPress={handleTestPrint} variant="secondary" style={styles.btn} disabled={loading} />
-            <Button title="Disconnect Printer" onPress={handleDisconnect} variant="danger" style={styles.btn} disabled={loading} />
+            <Button title={loading ? 'Mencetak...' : 'Cetak Halaman Uji Coba'} onPress={handleTestPrint} variant="secondary" style={styles.btn} disabled={loading} />
+            <Button title="Putuskan Printer" onPress={handleDisconnect} variant="danger" style={styles.btn} disabled={loading} />
           </View>
         ) : (
           <View style={styles.pairContainer}>
             <View style={styles.listHeader}>
-              <Text style={styles.listTitle}>Paired Devices</Text>
+              <Text style={styles.listTitle}>Perangkat Terpasang</Text>
               <TouchableOpacity onPress={fetchDevices} disabled={loading}>
-                <Text style={styles.refreshBtnText}>{loading ? 'Refreshing...' : '🔄 Refresh'}</Text>
+                <Text style={styles.refreshBtnText}>{loading ? 'Menyegarkan...' : '🔄 Segarkan'}</Text>
               </TouchableOpacity>
             </View>
 
@@ -113,7 +113,7 @@ export const SettingsScreen = ({ navigation }: any) => {
                 </TouchableOpacity>
               )}
               ListEmptyComponent={
-                <Text style={styles.emptyText}>No paired bluetooth devices found.</Text>
+                <Text style={styles.emptyText}>Tidak ditemukan perangkat bluetooth yang terpasang.</Text>
               }
             />
           </View>

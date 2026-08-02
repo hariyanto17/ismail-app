@@ -84,13 +84,13 @@ export const AppNavigator = () => {
         ) : (
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'New Sale' }} />
-            <Stack.Screen name="Payment" component={PaymentScreen} options={{ title: 'Payment' }} />
-            <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'Sales History' }} />
-            <Stack.Screen name="Products" component={ProductsScreen} options={{ title: 'Manage Products' }} />
-            <Stack.Screen name="Categories" component={CategoriesScreen} options={{ title: 'Manage Categories' }} />
-            <Stack.Screen name="Users" component={UsersScreen} options={{ title: 'Manage Users' }} />
-            <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Printer Settings' }} />
+            <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Transaksi Baru' }} />
+            <Stack.Screen name="Payment" component={PaymentScreen} options={{ title: 'Pembayaran' }} />
+            <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'Riwayat Penjualan' }} />
+            <Stack.Screen name="Products" component={ProductsScreen} options={{ title: 'Kelola Produk' }} />
+            <Stack.Screen name="Categories" component={CategoriesScreen} options={{ title: 'Kelola Kategori' }} />
+            <Stack.Screen name="Users" component={UsersScreen} options={{ title: 'Kelola Pengguna' }} />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Pengaturan Printer' }} />
           </>
         )}
       </Stack.Navigator>

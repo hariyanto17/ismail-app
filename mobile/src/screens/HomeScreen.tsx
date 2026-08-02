@@ -39,66 +39,66 @@ export const HomeScreen = ({ navigation }: any) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.welcome}>Welcome,</Text>
+          <Text style={styles.welcome}>Selamat Datang,</Text>
           <Text style={styles.name}>{user.full_name}</Text>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>{user.role}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>Keluar</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.menuContainer}>
-        <Text style={styles.sectionTitle}>Main Menu</Text>
+        <Text style={styles.sectionTitle}>Menu Utama</Text>
 
         <MenuCard
-          title="New Transaction"
-          subtitle="Add items to cart and check out"
+          title="Transaksi Baru"
+          subtitle="Tambah barang ke keranjang dan bayar"
           icon="🛒"
           onPress={() => navigation.navigate('Cart')}
         />
 
         <MenuCard
-          title="Transaction History"
-          subtitle="View past sales and reprint receipts"
+          title="Riwayat Transaksi"
+          subtitle="Lihat riwayat penjualan dan cetak ulang struk"
           icon="📋"
           onPress={() => navigation.navigate('History')}
         />
 
         {isAdmin && (
           <>
-            <Text style={styles.sectionTitle}>Administration</Text>
+            <Text style={styles.sectionTitle}>Administrasi</Text>
 
             <MenuCard
-              title="Manage Products"
-              subtitle="Add, edit or disable catalog items"
+              title="Kelola Produk"
+              subtitle="Tambah, ubah, atau nonaktifkan produk"
               icon="📦"
               onPress={() => navigation.navigate('Products')}
             />
 
             <MenuCard
-              title="Manage Categories"
-              subtitle="Configure product classifications"
+              title="Kelola Kategori"
+              subtitle="Konfigurasi klasifikasi produk"
               icon="🏷️"
               onPress={() => navigation.navigate('Categories')}
             />
 
             <MenuCard
-              title="Manage Users"
-              subtitle="Add or edit cashier and admin profiles"
+              title="Kelola Pengguna"
+              subtitle="Tambah atau ubah profil kasir dan admin"
               icon="👥"
               onPress={() => navigation.navigate('Users')}
             />
           </>
         )}
 
-        <Text style={styles.sectionTitle}>System</Text>
+        <Text style={styles.sectionTitle}>Sistem</Text>
 
         <MenuCard
-          title="Printer Settings"
-          subtitle="Connect and test Bluetooth printer"
+          title="Pengaturan Printer"
+          subtitle="Hubungkan dan uji printer Bluetooth"
           icon="🖨️"
           onPress={() => navigation.navigate('Settings')}
         />

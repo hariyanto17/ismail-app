@@ -21,16 +21,16 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, activeTa
 
   const tabs = isAdmin
     ? [
-        { id: 'Home', label: 'Home', icon: '🏠', route: 'Home' },
-        { id: 'Cart', label: 'Transaction', icon: '🛒', route: 'Cart' },
-        { id: 'Products', label: 'Products', icon: '📦', route: 'Products' },
-        { id: 'Settings', label: 'Settings', icon: '⚙️', route: 'Settings' },
+        { id: 'Home', label: 'Beranda', icon: '🏠', route: 'Home' },
+        { id: 'Cart', label: 'Transaksi', icon: '🛒', route: 'Cart' },
+        { id: 'Products', label: 'Produk', icon: '📦', route: 'Products' },
+        { id: 'Settings', label: 'Pengaturan', icon: '⚙️', route: 'Settings' },
       ]
     : [
-        { id: 'Home', label: 'Home', icon: '🏠', route: 'Home' },
-        { id: 'Cart', label: 'Transaction', icon: '🛒', route: 'Cart' },
-        { id: 'History', label: 'History', icon: '📜', route: 'History' },
-        { id: 'Settings', label: 'Settings', icon: '⚙️', route: 'Settings' },
+        { id: 'Home', label: 'Beranda', icon: '🏠', route: 'Home' },
+        { id: 'Cart', label: 'Transaksi', icon: '🛒', route: 'Cart' },
+        { id: 'History', label: 'Riwayat', icon: '📜', route: 'History' },
+        { id: 'Settings', label: 'Pengaturan', icon: '⚙️', route: 'Settings' },
       ];
 
   const handlePress = (route: string) => {

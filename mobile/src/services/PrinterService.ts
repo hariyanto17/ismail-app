@@ -86,7 +86,7 @@ class PrinterService {
 
       const pairedResponse = await BluetoothManager.enableBluetooth();
       console.log('Bluetooth response:', pairedResponse);
-      
+
       return [
         { name: 'Demo Printer (58mm)', address: '00:11:22:33:44:55' },
         { name: 'Demo Printer (80mm)', address: 'AA:BB:CC:DD:EE:FF' },
@@ -161,20 +161,18 @@ class PrinterService {
       const lines = receiptText.split('\n');
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        
+
         if (i >= lines.length - 3 && line.trim() === '') {
           continue; // skip trailing empty lines
         }
 
-        if (line.startsWith('TOTAL')) {
-          await printer.printerAlign(printer.ALIGN.LEFT);
-          await printer.printText(line + '\n', { fonttype: 1 });
-        } else if (
+        if (
           line.includes('KOPI WARA') ||
           line.includes('Jl. Yos Sudarso') ||
           line.includes('085345777') ||
           line.includes('IG: @kopi_wara') ||
-          line.includes('Terima Kasih')
+          line.includes('Terima Kasih') ||
+          line.includes('caffeine')
         ) {
           await printer.printerAlign(printer.ALIGN.CENTER);
           await printer.printText(line + '\n', {});
@@ -186,7 +184,7 @@ class PrinterService {
 
       await this.feed(3);
       await this.cut();
-      
+
       console.log('[PrinterService] Printed successfully to hardware.');
       Alert.alert('Printing Successful', 'The receipt has been printed successfully.');
       return true;
@@ -199,7 +197,7 @@ class PrinterService {
 
   formatReceipt(transaction: any): string {
     const divider = this.separator() + '\n';
-    
+
     let receipt = '';
     receipt += this.centerLine('KOPI WARA') + '\n';
     receipt += this.centerLine('Jl. Yos Sudarso Bajoe') + '\n';
@@ -228,7 +226,7 @@ class PrinterService {
     receipt += divider;
     receipt += this.padLine('TOTAL', this.formatCurrency(transaction.total)) + '\n';
     receipt += '\n';
-    
+
     const paymentLabel = transaction.payment_method === 'CASH' ? 'Tunai' : 'QRIS';
     receipt += this.padLine(paymentLabel, this.formatCurrency(transaction.paid_amount)) + '\n';
     receipt += '\n';
@@ -237,7 +235,8 @@ class PrinterService {
     receipt += '\n';
 
     // Footer
-    receipt += this.centerLine('Terima Kasih ☕') + '\n';
+    receipt += this.centerLine('Kopi wara : 1% caffeine, 99% kebahagiaan') + '\n';
+    receipt += this.centerLine('Terima Kasih') + '\n';
     receipt += this.centerLine('IG: @kopi_wara') + '\n';
 
     return receipt;
@@ -258,10 +257,10 @@ class PrinterService {
     try {
       const printer = BluetoothEscposPrinter as any;
       await printer.printerInit();
-      
+
       // Print Logo
       await this.printLogo();
-      
+
       // Print centered header
       await printer.printerAlign(printer.ALIGN.CENTER);
       await printer.printText(this.centerLine('KOPI WARA') + '\n', {});
@@ -269,7 +268,7 @@ class PrinterService {
       await printer.printText(this.centerLine('085345777377') + '\n', {});
       await printer.printText(this.centerLine('IG: @kopi_wara') + '\n', {});
       await this.feed(1);
-      
+
       // Divider & Trans Info
       await printer.printerAlign(printer.ALIGN.LEFT);
       await printer.printText(this.separator() + '\n', {});
@@ -278,30 +277,31 @@ class PrinterService {
       await printer.printText('Kasir: Admin\n', {});
       await printer.printText(this.separator() + '\n', {});
       await this.feed(1);
-      
+
       // Sample items
       await printer.printText('Es Kopi Gula Aren\n', {});
       await printer.printText(this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000)) + '\n', {});
-      
+
       await printer.printText('Ice Chocolate\n', {});
       await printer.printText(this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000)) + '\n', {});
       await this.feed(1);
-      
+
       // Summary
       await printer.printText(this.separator() + '\n', {});
-      await printer.printText(this.padLine('TOTAL', this.formatCurrency(41000)) + '\n', { fonttype: 1 });
+      await printer.printText(this.padLine('TOTAL', this.formatCurrency(41000)) + '\n', {});
       await printer.printText('\n', {});
       await printer.printText(this.padLine('Tunai', this.formatCurrency(50000)) + '\n', {});
       await printer.printText('\n', {});
       await printer.printText(this.padLine('Kembalian', this.formatCurrency(9000)) + '\n', {});
       await printer.printText(this.separator() + '\n', {});
       await this.feed(1);
-      
+
       // Footer
       await printer.printerAlign(printer.ALIGN.CENTER);
-      await printer.printText(this.centerLine('Terima Kasih ☕') + '\n', {});
+      await printer.printText(this.centerLine('Kopi wara : 1% caffeine, 99% kebahagiaan') + '\n', {});
+      await printer.printText(this.centerLine('Terima Kasih') + '\n', {});
       await printer.printText(this.centerLine('IG: @kopi_wara') + '\n', {});
-      
+
       await this.feed(3);
       await this.cut();
     } catch (error) {
@@ -312,7 +312,7 @@ class PrinterService {
 
   private generateTestReceipt(): string {
     const divider = this.separator() + '\n';
-    return `${this.centerLine('KOPI WARA')}\n${this.centerLine('Jl. Yos Sudarso Bajoe')}\n${this.centerLine('085345777377')}\n${this.centerLine('IG: @kopi_wara')}\n\n${divider}No : TEST-000001\nTgl: ${this.formatDate(new Date().toISOString())}\nKasir: Admin\n${divider}\nEs Kopi Gula Aren\n${this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000))}\n\nIce Chocolate\n${this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000))}\n\n${divider}${this.padLine('TOTAL', this.formatCurrency(41000))}\n\n${this.padLine('Tunai', this.formatCurrency(50000))}\n\n${this.padLine('Kembalian', this.formatCurrency(9000))}\n${divider}\n${this.centerLine('Terima Kasih ☕')}\n${this.centerLine('IG: @kopi_wara')}\n\n\n\n`;
+    return `${this.centerLine('KOPI WARA')}\n${this.centerLine('Jl. Yos Sudarso Bajoe')}\n${this.centerLine('085345777377')}\n${this.centerLine('IG: @kopi_wara')}\n\n${divider}No : TEST-000001\nTgl: ${this.formatDate(new Date().toISOString())}\nKasir: Admin\n${divider}\nEs Kopi Gula Aren\n${this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000))}\n\nIce Chocolate\n${this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000))}\n\n${divider}${this.padLine('TOTAL', this.formatCurrency(41000))}\n\n${this.padLine('Tunai', this.formatCurrency(50000))}\n\n${this.padLine('Kembalian', this.formatCurrency(9000))}\n${divider}\n${this.centerLine('Kopi wara : 1% caffeine, 99% kebahagiaan')}\n${this.centerLine('Terima Kasih')}\n${this.centerLine('IG: @kopi_wara')}\n\n\n\n`;
   }
 }
 

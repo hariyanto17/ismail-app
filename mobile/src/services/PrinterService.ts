@@ -168,6 +168,7 @@ class PrinterService {
 
         if (
           line.includes('KOPI WARA') ||
+          line.includes('Kopi wara') ||
           line.includes('Jl. Yos Sudarso') ||
           line.includes('085345777') ||
           line.includes('IG: @kopi_wara') ||
@@ -235,7 +236,8 @@ class PrinterService {
     receipt += '\n';
 
     // Footer
-    receipt += this.centerLine('Kopi wara : 1% caffeine, 99% kebahagiaan') + '\n';
+    receipt += this.centerLine('Kopi wara :') + '\n';
+    receipt += this.centerLine('1% caffeine, 99% kebahagiaan') + '\n';
     receipt += this.centerLine('Terima Kasih') + '\n';
     receipt += this.centerLine('IG: @kopi_wara') + '\n';
 
@@ -298,7 +300,8 @@ class PrinterService {
 
       // Footer
       await printer.printerAlign(printer.ALIGN.CENTER);
-      await printer.printText(this.centerLine('Kopi wara : 1% caffeine, 99% kebahagiaan') + '\n', {});
+      await printer.printText(this.centerLine('Kopi wara :') + '\n', {});
+      await printer.printText(this.centerLine('1% caffeine, 99% kebahagiaan') + '\n', {});
       await printer.printText(this.centerLine('Terima Kasih') + '\n', {});
       await printer.printText(this.centerLine('IG: @kopi_wara') + '\n', {});
 
@@ -312,7 +315,7 @@ class PrinterService {
 
   private generateTestReceipt(): string {
     const divider = this.separator() + '\n';
-    return `${this.centerLine('KOPI WARA')}\n${this.centerLine('Jl. Yos Sudarso Bajoe')}\n${this.centerLine('085345777377')}\n${this.centerLine('IG: @kopi_wara')}\n\n${divider}No : TEST-000001\nTgl: ${this.formatDate(new Date().toISOString())}\nKasir: Admin\n${divider}\nEs Kopi Gula Aren\n${this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000))}\n\nIce Chocolate\n${this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000))}\n\n${divider}${this.padLine('TOTAL', this.formatCurrency(41000))}\n\n${this.padLine('Tunai', this.formatCurrency(50000))}\n\n${this.padLine('Kembalian', this.formatCurrency(9000))}\n${divider}\n${this.centerLine('Kopi wara : 1% caffeine, 99% kebahagiaan')}\n${this.centerLine('Terima Kasih')}\n${this.centerLine('IG: @kopi_wara')}\n\n\n\n`;
+    return `${this.centerLine('KOPI WARA')}\n${this.centerLine('Jl. Yos Sudarso Bajoe')}\n${this.centerLine('085345777377')}\n${this.centerLine('IG: @kopi_wara')}\n\n${divider}No : TEST-000001\nTgl: ${this.formatDate(new Date().toISOString())}\nKasir: Admin\n${divider}\nEs Kopi Gula Aren\n${this.padLine('2 x ' + this.formatCurrency(13000), this.formatCurrency(26000))}\n\nIce Chocolate\n${this.padLine('1 x ' + this.formatCurrency(15000), this.formatCurrency(15000))}\n\n${divider}${this.padLine('TOTAL', this.formatCurrency(41000))}\n\n${this.padLine('Tunai', this.formatCurrency(50000))}\n\n${this.padLine('Kembalian', this.formatCurrency(9000))}\n${divider}\n${this.centerLine('Kopi wara :')}\n${this.centerLine('1% caffeine, 99% kebahagiaan')}\n${this.centerLine('Terima Kasih')}\n${this.centerLine('IG: @kopi_wara')}\n\n\n\n`;
   }
 }
 

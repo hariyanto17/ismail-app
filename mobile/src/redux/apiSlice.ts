@@ -2,7 +2,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Platform } from 'react-native';
 import { RootState } from './store';
 
-const BASE_URL = 'https://kopiwara.168billiard.online';
+const BASE_URL = __DEV__
+  ? (Platform.OS === 'android' ? 'http://10.0.2.2:5001' : 'http://localhost:5001')
+  : 'https://kopiwara.168billiard.online';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -16,7 +18,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Category', 'Product', 'Transaction'],
+  tagTypes: ['User', 'Category', 'Product', 'Transaction', 'ReportRecipient', 'Setting'],
   endpoints: (builder) => ({
     // Auth
     login: builder.mutation({
@@ -26,7 +28,7 @@ export const apiSlice = createApi({
         body: credentials,
       }),
     }),
-    
+
     // Users
     getUsers: builder.query({
       query: () => '/users',
@@ -131,6 +133,53 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Transaction'],
     }),
+    // Reports
+    getDailyReport: builder.query({
+      query: (date) => `/reports/daily?date=${date}`,
+      providesTags: ['Transaction'],
+    }),
+
+    // Report Recipients
+    getReportRecipients: builder.query({
+      query: () => '/report-recipients',
+      providesTags: ['ReportRecipient'],
+    }),
+    createReportRecipient: builder.mutation({
+      query: (recipient) => ({
+        url: '/report-recipients',
+        method: 'POST',
+        body: recipient,
+      }),
+      invalidatesTags: ['ReportRecipient'],
+    }),
+    updateReportRecipient: builder.mutation({
+      query: ({ id, ...recipient }) => ({
+        url: `/report-recipients/${id}`,
+        method: 'PUT',
+        body: recipient,
+      }),
+      invalidatesTags: ['ReportRecipient'],
+    }),
+    deleteReportRecipient: builder.mutation({
+      query: (id) => ({
+        url: `/report-recipients/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['ReportRecipient'],
+    }),
+    // Settings
+    getSettings: builder.query({
+      query: () => '/settings',
+      providesTags: ['Setting'],
+    }),
+    updateSettings: builder.mutation({
+      query: (settings) => ({
+        url: '/settings',
+        method: 'PUT',
+        body: settings,
+      }),
+      invalidatesTags: ['Setting'],
+    }),
   }),
 });
 
@@ -151,4 +200,11 @@ export const {
   useGetTransactionsQuery,
   useGetTransactionDetailQuery,
   useCreateTransactionMutation,
+  useGetDailyReportQuery,
+  useGetReportRecipientsQuery,
+  useCreateReportRecipientMutation,
+  useUpdateReportRecipientMutation,
+  useDeleteReportRecipientMutation,
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
 } = apiSlice;

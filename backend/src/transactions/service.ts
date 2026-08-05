@@ -4,6 +4,8 @@ import { BadRequestError, NotFoundError } from '../common/errors';
 import prisma from '../config/prisma';
 import { Product } from '@prisma/client';
 
+import { getDateStringInTimezone, getDayRangeInTimezone } from '../common/timezone';
+
 export class TransactionService {
   constructor(private transactionRepository: TransactionRepository) {}
 
@@ -32,16 +34,13 @@ export class TransactionService {
 
   private async generateInvoiceNumber(): Promise<string> {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const dateStr = `${year}${month}${day}`;
+    const setting = await prisma.appSetting.findFirst();
+    const timezone = setting?.timezone || 'Asia/Makassar';
+    const dateString = getDateStringInTimezone(now, timezone);
+    const dateStr = dateString.replace(/-/g, '');
+    const { start, end } = getDayRangeInTimezone(dateString, timezone);
 
-    // Get range for today
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-
-    const count = await this.transactionRepository.countTodayTransactions(startOfDay, endOfDay);
+    const count = await this.transactionRepository.countTodayTransactions(start, end);
     const nextNumber = String(count + 1).padStart(6, '0');
 
     return `INV-${dateStr}-${nextNumber}`;

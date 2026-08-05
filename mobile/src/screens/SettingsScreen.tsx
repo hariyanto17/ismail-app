@@ -119,7 +119,6 @@ export const SettingsScreen = ({ navigation }: any) => {
           </View>
         )}
       </View>
-      <BottomTabBar navigation={navigation} activeTab="Settings" />
     </View>
   );
 };

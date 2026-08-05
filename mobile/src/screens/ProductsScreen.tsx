@@ -213,7 +213,6 @@ export const ProductsScreen = ({ navigation }: any) => {
           </View>
         </View>
       </Modal>
-      <BottomTabBar navigation={navigation} activeTab="Products" />
     </View>
   );
 };

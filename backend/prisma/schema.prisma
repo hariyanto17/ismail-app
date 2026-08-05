@@ -85,3 +85,63 @@ model TransactionItem {
 
   @@map("transaction_items")
 }
+
+enum ReportType {
+  DAILY
+  CLOSING
+  ALL
+}
+
+model AppSetting {
+  id            String            @id @default(uuid()) @db.Uuid
+  store_name    String            @default("Kopi Wara")
+  store_address String            @default("")
+  store_phone   String            @default("")
+  instagram     String            @default("")
+  opening_time  String            @default("09:00")
+  closing_time  String            @default("23:00")
+  closing_day   Int               @default(25)
+  timezone      String            @default("Asia/Makassar")
+  currency      String            @default("IDR")
+  created_at    DateTime          @default(now())
+  updated_at    DateTime          @updatedAt
+  recipients    ReportRecipient[]
+
+  @@map("app_settings")
+}
+
+model ReportRecipient {
+  id             String     @id @default(uuid()) @db.Uuid
+  app_setting_id String     @db.Uuid
+  appSetting     AppSetting @relation(fields: [app_setting_id], references: [id], onDelete: Cascade)
+  name           String
+  phone          String
+  report_type    ReportType
+  is_active      Boolean    @default(true)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  @@index([app_setting_id])
+  @@index([report_type])
+  @@map("report_recipients")
+}
+
+enum ReportStatus {
+  SUCCESS
+  FAILED
+}
+
+model ReportLog {
+  id             String       @id @default(uuid()) @db.Uuid
+  report_type    ReportType
+  recipient      String
+  recipient_name String?
+  message        String
+  status         ReportStatus
+  error_message  String?
+  sent_at        DateTime?
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
+  @@map("report_logs")
+}

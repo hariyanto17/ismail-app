@@ -121,7 +121,6 @@ export const HistoryScreen = ({ navigation }: any) => {
           </View>
         </View>
       </Modal>
-      <BottomTabBar navigation={navigation} activeTab="History" />
     </View>
   );
 };

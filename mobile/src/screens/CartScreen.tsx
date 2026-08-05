@@ -9,7 +9,7 @@ import PrinterService from '../services/PrinterService';
 import Button from '../components/Button';
 import ProductImage from '../components/ProductImage';
 import { isTablet } from '../utils/device';
-import BottomTabBar from '../components/BottomTabBar';
+import { CartIcon, CashIcon, QrisIcon } from '../components/Icons';
 
 interface ProductCardProps {
   item: any;
@@ -51,6 +51,7 @@ export const CartScreen = ({ navigation }: any) => {
   // Redux selectors
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const total = useSelector(selectCartTotal);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   // States
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,6 +68,16 @@ export const CartScreen = ({ navigation }: any) => {
 
   const products = productsRes?.data || [];
   const categories = categoriesRes?.data || [];
+
+  const getTodayWibLabel = () => {
+    const now = new Date();
+    const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return `${wib.getUTCDate()} ${months[wib.getUTCMonth()]} ${wib.getUTCFullYear()}`;
+  };
 
   // Auto calculate change when cash input or total changes
   useEffect(() => {
@@ -222,13 +233,19 @@ export const CartScreen = ({ navigation }: any) => {
               style={[styles.paymentBtn, paymentMethod === 'CASH' ? styles.paymentBtnSelected : null]}
               onPress={() => setPaymentMethod('CASH')}
             >
-              <Text style={styles.paymentBtnText}>💵 TUNAI</Text>
+              <View style={styles.paymentBtnContent}>
+                <CashIcon color={paymentMethod === 'CASH' ? '#FFFFFF' : '#0F5936'} size={18} />
+                <Text style={[styles.paymentBtnText, paymentMethod === 'CASH' ? styles.paymentBtnTextSelected : null]}>TUNAI</Text>
+              </View>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.paymentBtn, paymentMethod === 'QRIS' ? styles.paymentBtnSelected : null]}
               onPress={() => setPaymentMethod('QRIS')}
             >
-              <Text style={styles.paymentBtnText}>📱 QRIS</Text>
+              <View style={styles.paymentBtnContent}>
+                <QrisIcon color={paymentMethod === 'QRIS' ? '#FFFFFF' : '#0F5936'} size={18} />
+                <Text style={[styles.paymentBtnText, paymentMethod === 'QRIS' ? styles.paymentBtnTextSelected : null]}>QRIS</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -266,11 +283,22 @@ export const CartScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
+      {/* Home Header */}
+      <View style={styles.homeHeader}>
+        <View>
+          <Text style={styles.headerTitle}>KOPI WARA</Text>
+          <Text style={styles.headerSub}>
+            {user?.full_name ? `Cashier: ${user.full_name}` : ''}
+          </Text>
+        </View>
+        <Text style={styles.headerDate}>{getTodayWibLabel()}</Text>
+      </View>
+
       {/* Search and Category Tabs */}
       <View style={styles.topSection}>
         <TextInput
           style={styles.searchInput}
-          placeholder="🔍 Cari produk berdasarkan nama..."
+          placeholder="Cari produk berdasarkan nama..."
           placeholderTextColor={theme.colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -345,7 +373,7 @@ export const CartScreen = ({ navigation }: any) => {
           onPress={() => setCartVisible(true)}
           activeOpacity={0.8}
         >
-          <Text style={styles.fabIcon}>🛒</Text>
+          <CartIcon color="#FFFFFF" size={24} />
           <View style={styles.fabBadge}>
             <Text style={styles.fabBadgeText}>{cartItems.length}</Text>
           </View>
@@ -363,9 +391,6 @@ export const CartScreen = ({ navigation }: any) => {
           </View>
         </Modal>
       )}
-
-      {/* Phone Bottom Tab Bar */}
-      {!isTablet() && <BottomTabBar navigation={navigation} activeTab="Cart" />}
     </View>
   );
 };
@@ -620,21 +645,35 @@ const styles = StyleSheet.create({
   },
   paymentBtn: {
     width: '48%',
-    backgroundColor: theme.colors.surface,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.sm,
+    backgroundColor: '#FFFFFF',
+    height: 48,
+    borderRadius: 16,
+    justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
   paymentBtnSelected: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.text,
+    backgroundColor: '#0F5936',
+    borderColor: '#0F5936',
+  },
+  paymentBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   paymentBtnText: {
-    color: theme.colors.text,
-    fontSize: 12,
+    color: '#0F5936',
+    fontSize: 14,
     fontWeight: '700',
+  },
+  paymentBtnTextSelected: {
+    color: '#FFFFFF',
   },
   cashBox: {
     marginBottom: theme.spacing.sm,
@@ -731,6 +770,32 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
+  },
+  homeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: 50,
+    paddingBottom: theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F5936',
+  },
+  headerSub: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  headerDate: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
   },
 });
 export default CartScreen;

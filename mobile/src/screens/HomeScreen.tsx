@@ -1,21 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { clearCredentials } from '../redux/authSlice';
+import { useGetDailyReportQuery } from '../redux/apiSlice';
 import { theme } from '../utils/theme';
-import BottomTabBar from '../components/BottomTabBar';
 
-interface MenuCardProps {
+interface QuickActionProps {
   title: string;
   subtitle: string;
   icon: string;
   onPress: () => void;
+  color?: string;
 }
 
-const MenuCard: React.FC<MenuCardProps> = ({ title, subtitle, icon, onPress }) => (
+const QuickAction: React.FC<QuickActionProps> = ({ title, subtitle, icon, onPress, color = '#0F5936' }) => (
   <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
-    <Text style={styles.cardIcon}>{icon}</Text>
+    <View style={[styles.cardIconBox, { backgroundColor: color + '15' }]}>
+      <Text style={[styles.cardIcon, { color }]}>{icon}</Text>
+    </View>
     <View style={styles.cardContent}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardSubtitle}>{subtitle}</Text>
@@ -24,86 +26,101 @@ const MenuCard: React.FC<MenuCardProps> = ({ title, subtitle, icon, onPress }) =
 );
 
 export const HomeScreen = ({ navigation }: any) => {
-  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
+
+  const getTodayWibString = () => {
+    const now = new Date();
+    const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+    return wib.toISOString().split('T')[0];
+  };
+
+  const { data: reportResponse, isLoading: loadingSummary } = useGetDailyReportQuery(getTodayWibString());
+  const reportData = reportResponse?.data || { totalTransactions: 0, totalSales: 0 };
 
   if (!user) return null;
 
   const isAdmin = user.role === 'ADMIN';
 
-  const handleLogout = () => {
-    dispatch(clearCredentials());
-  };
-
   return (
     <View style={styles.container}>
+      {/* Top Welcome Card */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.welcome}>Selamat Datang,</Text>
-          <Text style={styles.name}>{user.full_name}</Text>
+        <View style={styles.avatarContainer}>
+          <Text style={styles.avatarText}>
+            {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+          </Text>
+        </View>
+        <View style={styles.welcomeInfo}>
+          <Text style={styles.welcomeText}>Selamat Datang,</Text>
+          <Text style={styles.nameText}>{user.full_name}</Text>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>{user.role}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Keluar</Text>
-        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.menuContainer}>
-        <Text style={styles.sectionTitle}>Menu Utama</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Today's Summary Card */}
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryCardTitle}>Today's Summary</Text>
+          {loadingSummary ? (
+            <ActivityIndicator size="small" color="#0F5936" style={{ marginVertical: theme.spacing.md }} />
+          ) : (
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryValue}>{reportData.totalTransactions}</Text>
+                <Text style={styles.summaryLabel}>Transactions</Text>
+              </View>
+              <View style={styles.verticalDivider} />
+              <View style={styles.summaryItem}>
+                <Text style={[styles.summaryValue, styles.greenText]}>
+                  Rp{reportData.totalSales.toLocaleString('id-ID')}
+                </Text>
+                <Text style={styles.summaryLabel}>Total Sales</Text>
+              </View>
+            </View>
+          )}
+        </View>
 
-        <MenuCard
-          title="Transaksi Baru"
-          subtitle="Tambah barang ke keranjang dan bayar"
+        {/* Quick Actions Group */}
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        
+        <QuickAction
+          title="New Transaction"
+          subtitle="Add items to cart and check out"
           icon="🛒"
+          color="#0F5936"
           onPress={() => navigation.navigate('Cart')}
-        />
-
-        <MenuCard
-          title="Riwayat Transaksi"
-          subtitle="Lihat riwayat penjualan dan cetak ulang struk"
-          icon="📋"
-          onPress={() => navigation.navigate('History')}
         />
 
         {isAdmin && (
           <>
-            <Text style={styles.sectionTitle}>Administrasi</Text>
-
-            <MenuCard
-              title="Kelola Produk"
-              subtitle="Tambah, ubah, atau nonaktifkan produk"
+            <QuickAction
+              title="Products"
+              subtitle="Add, edit, or disable catalog products"
               icon="📦"
+              color="#3B82F6"
               onPress={() => navigation.navigate('Products')}
             />
 
-            <MenuCard
-              title="Kelola Kategori"
-              subtitle="Konfigurasi klasifikasi produk"
+            <QuickAction
+              title="Categories"
+              subtitle="Configure product classifications"
               icon="🏷️"
+              color="#F59E0B"
               onPress={() => navigation.navigate('Categories')}
             />
 
-            <MenuCard
-              title="Kelola Pengguna"
-              subtitle="Tambah atau ubah profil kasir dan admin"
+            <QuickAction
+              title="Users"
+              subtitle="Manage cashier and admin profiles"
               icon="👥"
+              color="#10B981"
               onPress={() => navigation.navigate('Users')}
             />
           </>
         )}
-
-        <Text style={styles.sectionTitle}>Sistem</Text>
-
-        <MenuCard
-          title="Pengaturan Printer"
-          subtitle="Hubungkan dan uji printer Bluetooth"
-          icon="🖨️"
-          onPress={() => navigation.navigate('Settings')}
-        />
       </ScrollView>
-      <BottomTabBar navigation={navigation} activeTab="Home" />
     </View>
   );
 };
@@ -111,92 +128,156 @@ export const HomeScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#F9FAFB',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: theme.spacing.lg,
     paddingTop: 60,
-    paddingBottom: theme.spacing.lg,
-    backgroundColor: '#0F5936', // Primary brand green
+    paddingBottom: theme.spacing.md,
     borderBottomWidth: 1,
-    borderColor: '#0A472B',
+    borderColor: '#E5E7EB',
   },
-  welcome: {
-    fontSize: 14,
-    color: '#EAF5EF',
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#0F5936',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: theme.spacing.md,
   },
-  name: {
-    fontSize: 22,
-    fontWeight: '700',
+  avatarText: {
+    fontSize: 20,
     color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  welcomeInfo: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  nameText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginTop: 1,
   },
   roleBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#0A472B', // Dark green badge
-    paddingHorizontal: theme.spacing.sm,
+    backgroundColor: '#EAF5EF',
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: theme.borderRadius.sm,
-    marginTop: theme.spacing.xs,
+    borderRadius: 8,
+    marginTop: 4,
   },
   roleText: {
-    color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: 9,
+    color: '#0F5936',
     fontWeight: '700',
   },
-  logoutBtn: {
-    backgroundColor: '#0A472B',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: '#2D7A56',
-  },
-  logoutText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  menuContainer: {
+  scrollContent: {
     padding: theme.spacing.lg,
+    paddingBottom: 80,
+  },
+  summaryCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: theme.spacing.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  summaryCardTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: theme.spacing.md,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  summaryItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  verticalDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E5E7EB',
+  },
+  summaryValue: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1F2937',
+  },
+  greenText: {
+    color: '#0F5936',
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: '#6B7280',
+    marginTop: 2,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: theme.colors.textMuted,
+    color: '#6B7280',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+    marginLeft: 4,
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  cardIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: theme.spacing.md,
   },
   cardIcon: {
-    fontSize: 32,
-    marginRight: theme.spacing.md,
+    fontSize: 20,
   },
   cardContent: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.text,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1F2937',
   },
   cardSubtitle: {
-    fontSize: 12,
-    color: theme.colors.textMuted,
+    fontSize: 11,
+    color: '#6B7280',
     marginTop: 2,
   },
 });
+
 export default HomeScreen;

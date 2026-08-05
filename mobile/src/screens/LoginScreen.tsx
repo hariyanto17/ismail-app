@@ -38,6 +38,7 @@ export const LoginScreen = () => {
         Alert.alert('Masuk Gagal', response.message || 'Kesalahan tidak diketahui');
       }
     } catch (err: any) {
+      console.log(err)
       const errMsg = err?.data?.message || 'Tidak dapat terhubung ke server';
       Alert.alert('Kesalahan Masuk', errMsg);
     }

@@ -6,6 +6,10 @@ import usersRoutes from './users/routes';
 import categoriesRoutes from './categories/routes';
 import productsRoutes from './products/routes';
 import transactionsRoutes from './transactions/routes';
+import reportsRoutes from './reports/routes';
+import reportRecipientRoutes from './report-recipients/routes';
+import settingsRoutes from './settings/routes';
+import healthRoutes from './health/routes';
 import { errorMiddleware } from './middleware/error';
 
 dotenv.config();
@@ -16,15 +20,19 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
+app.use('/', healthRoutes);
 
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/categories', categoriesRoutes);
 app.use('/products', productsRoutes);
 app.use('/transactions', transactionsRoutes);
+app.use('/reports', reportsRoutes);
+app.use('/api/v1/reports', reportsRoutes);
+app.use('/report-recipients', reportRecipientRoutes);
+app.use('/api/v1/report-recipients', reportRecipientRoutes);
+app.use('/settings', settingsRoutes);
+app.use('/api/v1/settings', settingsRoutes);
 
 // Error Handling
 app.use(errorMiddleware);

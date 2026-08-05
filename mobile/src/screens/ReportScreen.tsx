@@ -31,7 +31,11 @@ export const ReportScreen = ({ navigation }: any) => {
   };
 
   const dateStr = getFormatDateStr(selectedDate);
-  const { data: response, isLoading } = useGetDailyReportQuery(dateStr);
+  const { data: response, error, isLoading } = useGetDailyReportQuery(dateStr);
+
+  console.log('reportData response:', response);
+  console.log('reportData error:', error);
+  console.log('reportData isLoading:', isLoading);
 
   const reportData = response?.data || {
     date: dateStr,
@@ -126,7 +130,7 @@ export const ReportScreen = ({ navigation }: any) => {
 
         {/* Transaction History Section */}
         <Text style={styles.sectionTitle}>Transactions</Text>
-        
+
         {isLoading ? (
           <View style={{ gap: 12 }}>
             <SkeletonCard />
@@ -152,7 +156,7 @@ export const ReportScreen = ({ navigation }: any) => {
               <View style={styles.txIconBox}>
                 <HistoryIcon color="#6B7280" size={20} />
               </View>
-              
+
               <View style={styles.txDetails}>
                 <Text style={styles.txInvoice}>{tx.invoice_number}</Text>
                 <Text style={styles.txMeta}>

@@ -33,10 +33,6 @@ export const ReportScreen = ({ navigation }: any) => {
   const dateStr = getFormatDateStr(selectedDate);
   const { data: response, error, isLoading } = useGetDailyReportQuery(dateStr);
 
-  console.log('reportData response:', response);
-  console.log('reportData error:', error);
-  console.log('reportData isLoading:', isLoading);
-
   const reportData = response?.data || {
     date: dateStr,
     totalTransactions: 0,
@@ -45,6 +41,12 @@ export const ReportScreen = ({ navigation }: any) => {
     qrisSales: 0,
     transactions: [],
   };
+
+  console.log('penjualan response:', response);
+  console.log('penjualan error:', error);
+  console.log('penjualan isLoading:', isLoading);
+  console.log('penjualan reportData totalSales:', reportData.totalSales);
+  console.log('penjualan reportData transactions length:', reportData.transactions.length);
 
   const formatTime = (isoString: string) => {
     try {

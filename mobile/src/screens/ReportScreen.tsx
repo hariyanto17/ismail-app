@@ -46,6 +46,29 @@ export const ReportScreen = ({ navigation }: any) => {
     transactions: [],
   };
 
+  const formatTime = (isoString: string) => {
+    try {
+      const d = new Date(isoString);
+      if (isNaN(d.getTime())) return '--:--';
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    } catch {
+      return '--:--';
+    }
+  };
+
+  const formatDateTime = (isoString: string) => {
+    try {
+      const d = new Date(isoString);
+      if (isNaN(d.getTime())) return '';
+      const pad = (num: number) => String(num).padStart(2, '0');
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch {
+      return '';
+    }
+  };
+
   const handlePrintReprint = async (tx: any) => {
     const formattedTx = {
       invoice_number: tx.invoice_number,
@@ -160,7 +183,7 @@ export const ReportScreen = ({ navigation }: any) => {
               <View style={styles.txDetails}>
                 <Text style={styles.txInvoice}>{tx.invoice_number}</Text>
                 <Text style={styles.txMeta}>
-                  {new Date(tx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} • {tx.cashier_name}
+                  {formatTime(tx.created_at)} • {tx.cashier_name}
                 </Text>
               </View>
 
@@ -202,7 +225,7 @@ export const ReportScreen = ({ navigation }: any) => {
                   <Text style={styles.metaRow}>Invoice: {selectedTx.invoice_number}</Text>
                   <Text style={styles.metaRow}>Cashier: {selectedTx.cashier_name}</Text>
                   <Text style={styles.metaRow}>
-                    Date: {new Date(selectedTx.created_at).toLocaleString('id-ID')}
+                    Date: {formatDateTime(selectedTx.created_at)}
                   </Text>
                   <Text style={styles.metaRow}>Payment: {selectedTx.payment_method}</Text>
                 </View>

@@ -1,5 +1,7 @@
 import prisma from '../config/prisma';
 import { Transaction, TransactionItem, Product, User, Prisma } from '@prisma/client';
+import { AnalyticsSummaryService } from '../analytics/services/AnalyticsSummaryService';
+
 
 export type TransactionWithDetails = Transaction & {
   cashier: User;
@@ -82,6 +84,10 @@ export class TransactionRepository {
           subtotal: item.subtotal,
         })),
       });
+
+      // 3. Update summary tables
+      await AnalyticsSummaryService.updateSummary(tx, transaction, data.items);
+
 
       // 3. Retrieve completed transaction details
       const fullTransaction = await tx.transaction.findUnique({

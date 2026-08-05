@@ -49,6 +49,7 @@ model Product {
   is_active         Boolean           @default(true)
   image_url         String?
   transaction_items TransactionItem[]
+  analytics_products AnalyticsProductDaily[]
   created_at        DateTime          @default(now())
   updated_at        DateTime          @updatedAt
 
@@ -65,9 +66,12 @@ model Transaction {
   paid_amount    Int
   change_amount  Int
   items          TransactionItem[]
+  business_date  String?
   created_at     DateTime          @default(now())
   updated_at     DateTime          @updatedAt
 
+  @@index([business_date])
+  @@index([payment_method])
   @@map("transactions")
 }
 
@@ -83,6 +87,8 @@ model TransactionItem {
   created_at     DateTime    @default(now())
   updated_at     DateTime    @updatedAt
 
+  @@index([transaction_id])
+  @@index([product_id])
   @@map("transaction_items")
 }
 
@@ -145,3 +151,49 @@ model ReportLog {
 
   @@map("report_logs")
 }
+
+model AnalyticsDaily {
+  id                  String   @id @default(uuid()) @db.Uuid
+  business_date       String   @unique
+  total_sales         Int      @default(0)
+  total_transactions  Int      @default(0)
+  cash_sales          Int      @default(0)
+  qris_sales          Int      @default(0)
+  average_transaction Int      @default(0)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@index([business_date])
+  @@map("analytics_daily")
+}
+
+model AnalyticsHourly {
+  id                String   @id @default(uuid()) @db.Uuid
+  business_date     String
+  hour              String
+  total_sales       Int      @default(0)
+  transaction_count Int      @default(0)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@unique([business_date, hour])
+  @@index([business_date])
+  @@map("analytics_hourly")
+}
+
+model AnalyticsProductDaily {
+  id            String   @id @default(uuid()) @db.Uuid
+  business_date String
+  product_id    String   @db.Uuid
+  product       Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  quantity      Int      @default(0)
+  revenue       Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@unique([business_date, product_id])
+  @@index([business_date])
+  @@index([product_id])
+  @@map("analytics_product_daily")
+}
+

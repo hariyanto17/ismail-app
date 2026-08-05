@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnalyticsService } from './service';
+import { AnalyticsQueryService } from './services/AnalyticsQueryService';
+import { AnalyticsRebuildService } from './services/AnalyticsRebuildService';
 import { getWibDateString } from '../common/timezone';
 
-const analyticsService = new AnalyticsService();
+const queryService = new AnalyticsQueryService();
 
 export class AnalyticsController {
   getDailyAnalytics = async (req: Request, res: Response, next: NextFunction) => {
@@ -18,7 +19,7 @@ export class AnalyticsController {
           message: 'Invalid date format. Expected YYYY-MM-DD.',
         });
       }
-      const result = await analyticsService.getDailyAnalytics(dateStr);
+      const result = await queryService.getDailyAnalytics(dateStr);
       res.status(200).json({
         success: true,
         data: result,
@@ -53,7 +54,19 @@ export class AnalyticsController {
         });
       }
 
-      const result = await analyticsService.getMonthlyAnalytics(month, year);
+      const result = await queryService.getMonthlyAnalytics(month, year);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  rebuildAnalytics = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await AnalyticsRebuildService.rebuildAll();
       res.status(200).json({
         success: true,
         data: result,

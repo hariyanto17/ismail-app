@@ -1,5 +1,6 @@
 import prisma from '../../config/prisma';
 import { getDayRangeInTimezone } from '../../common/timezone';
+import BackendBranding from '../../branding';
 
 export class AnalyticsQueryService {
   private async getSetting() {
@@ -7,7 +8,7 @@ export class AnalyticsQueryService {
     if (!setting) {
       setting = await prisma.appSetting.create({
         data: {
-          store_name: 'Kopi Wara',
+          store_name: BackendBranding.defaultStoreName,
           store_address: '',
           store_phone: '',
           instagram: '',

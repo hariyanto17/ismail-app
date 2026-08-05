@@ -1,5 +1,6 @@
 import { AppSetting } from '@prisma/client';
 import prisma from '../../config/prisma';
+import BackendBranding from '../../branding';
 
 export class SettingCache {
   private static instance: AppSetting | null = null;
@@ -9,7 +10,7 @@ export class SettingCache {
     if (!setting) {
       setting = await prisma.appSetting.create({
         data: {
-          store_name: 'Kopi Wara',
+          store_name: BackendBranding.defaultStoreName,
           store_address: '',
           store_phone: '',
           instagram: '',

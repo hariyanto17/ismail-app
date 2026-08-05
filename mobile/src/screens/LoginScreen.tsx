@@ -7,6 +7,7 @@ import { setCredentials } from '../redux/authSlice';
 import { theme } from '../utils/theme';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import Branding from '../branding';
 import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const LoginScreen = () => {
@@ -64,7 +65,7 @@ export const LoginScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.headerContainer}>
           <Image
-            source={require('../assets/logo.png')}
+            source={Branding.assets.logo}
             style={styles.logoImage}
             resizeMode="contain"
           />

@@ -1,11 +1,12 @@
 import prisma from '../config/prisma';
+import BackendBranding from '../branding';
 
 export class ReportRecipientService {
   private async getOrCreateAppSettingId() {
     let setting = await prisma.appSetting.findFirst();
     if (!setting) {
       setting = await prisma.appSetting.create({
-        data: { store_name: 'Kopi Wara' },
+        data: { store_name: BackendBranding.defaultStoreName },
       });
     }
     return setting.id;

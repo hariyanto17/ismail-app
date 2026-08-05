@@ -1,6 +1,7 @@
 import prisma from '../config/prisma';
 import { SettingCache } from '../reports/cache/SettingCache';
 import SchedulerService from '../reports/scheduler/SchedulerService';
+import BackendBranding from '../branding';
 
 export class AppSettingService {
   async getOrCreate() {
@@ -8,7 +9,7 @@ export class AppSettingService {
     if (!setting) {
       setting = await prisma.appSetting.create({
         data: {
-          store_name: 'Kopi Wara',
+          store_name: BackendBranding.defaultStoreName,
           store_address: '',
           store_phone: '',
           instagram: '',

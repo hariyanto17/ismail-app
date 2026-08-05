@@ -6,6 +6,7 @@ import { addToCart, updateQuantity, removeFromCart, clearCart, selectCartTotal }
 import { RootState } from '../redux/store';
 import { theme } from '../utils/theme';
 import PrinterService from '../services/PrinterService';
+import Branding from '../branding';
 import Button from '../components/Button';
 import ProductImage from '../components/ProductImage';
 import { isTablet } from '../utils/device';
@@ -305,7 +306,7 @@ export const CartScreen = ({ navigation }: any) => {
       {/* Home Header */}
       <View style={styles.homeHeader}>
         <View>
-          <Text style={styles.headerTitle}>KOPI WARA</Text>
+          <Text style={styles.headerTitle}>{Branding.appName}</Text>
           <Text style={styles.headerSub}>
             {user?.full_name ? `Cashier: ${user.full_name}` : ''}
           </Text>

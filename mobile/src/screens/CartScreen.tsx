@@ -200,7 +200,7 @@ export const CartScreen = ({ navigation }: any) => {
           )}
         </View>
       </View>
-      
+
       <View style={styles.cartItemsScrollBox}>
         <FlatList
           data={cartItems}
@@ -322,7 +322,7 @@ export const CartScreen = ({ navigation }: any) => {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        
+
         <View style={styles.catBar}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <TouchableOpacity
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badgeText: {
-    color: theme.colors.text,
+    color: theme.colors.white,
     fontSize: 10,
     fontWeight: '800',
   },

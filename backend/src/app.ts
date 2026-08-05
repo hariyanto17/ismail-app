@@ -10,6 +10,7 @@ import reportsRoutes from './reports/routes';
 import reportRecipientRoutes from './report-recipients/routes';
 import settingsRoutes from './settings/routes';
 import healthRoutes from './health/routes';
+import analyticsRoutes from './analytics/routes';
 import { errorMiddleware } from './middleware/error';
 
 dotenv.config();
@@ -33,6 +34,9 @@ app.use('/report-recipients', reportRecipientRoutes);
 app.use('/api/v1/report-recipients', reportRecipientRoutes);
 app.use('/settings', settingsRoutes);
 app.use('/api/v1/settings', settingsRoutes);
+app.use('/analytics', analyticsRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+
 
 // Error Handling
 app.use(errorMiddleware);

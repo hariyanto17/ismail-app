@@ -139,6 +139,14 @@ export const apiSlice = createApi({
       query: (date) => `/reports/analytics?date=${date}`,
       providesTags: ['Transaction'],
     }),
+    getDailyAnalytics: builder.query({
+      query: (date) => `/analytics/daily?date=${date}`,
+      providesTags: ['Transaction'],
+    }),
+    getMonthlyAnalytics: builder.query({
+      query: ({ month, year }) => `/analytics/monthly?month=${month}&year=${year}`,
+      providesTags: ['Transaction'],
+    }),
 
     // Report Recipients
     getReportRecipients: builder.query({
@@ -203,6 +211,8 @@ export const {
   useCreateTransactionMutation,
   useGetDailyReportQuery,
   useGetAnalyticsReportQuery,
+  useGetDailyAnalyticsQuery,
+  useGetMonthlyAnalyticsQuery,
   useGetReportRecipientsQuery,
   useCreateReportRecipientMutation,
   useUpdateReportRecipientMutation,

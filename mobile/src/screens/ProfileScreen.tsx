@@ -74,17 +74,49 @@ export const ProfileScreen = ({ navigation }: any) => {
         </View>
       </View>
 
+      {/* Operations Menu Group */}
+      <View style={styles.menuGroup}>
+        <Text style={styles.groupHeader}>Operasional</Text>
+        <View style={styles.groupCard}>
+          <MenuItem
+            icon={<PrinterIcon color="#0F5936" size={20} />}
+            label="Pengaturan Printer"
+            onPress={() => navigation.navigate('Settings')}
+          />
+          <View style={styles.divider} />
+          <MenuItem
+            icon={<HistoryIcon color="#0F5936" size={20} />}
+            label="Riwayat Transaksi"
+            onPress={() => navigation.navigate('History')}
+          />
+        </View>
+      </View>
+
+      {/* Analytics Menu Group */}
+      {isAdmin && (
+        <View style={styles.menuGroup}>
+          <Text style={styles.groupHeader}>Analisis</Text>
+          <View style={styles.groupCard}>
+            <MenuItem
+              icon={<ReportIcon color="#0F5936" size={20} />}
+              label="Analisis Harian"
+              onPress={() => navigation.navigate('DailyAnalytics')}
+            />
+            <View style={styles.divider} />
+            <MenuItem
+              icon={<ReportIcon color="#0F5936" size={20} />}
+              label="Analisis Bulanan"
+              onPress={() => navigation.navigate('MonthlyAnalytics')}
+            />
+          </View>
+        </View>
+      )}
+
       {/* Administrator Menu Group */}
       {isAdmin && (
         <View style={styles.menuGroup}>
           <Text style={styles.groupHeader}>Manajemen</Text>
           <View style={styles.groupCard}>
-            <MenuItem
-              icon={<ReportIcon color="#0F5936" size={20} />}
-              label="Analisis Penjualan"
-              onPress={() => navigation.navigate('Analytics')}
-            />
-            <View style={styles.divider} />
             <MenuItem
               icon={<SettingsIcon color="#0F5936" size={20} />}
               label="Pengaturan Toko"
@@ -111,24 +143,6 @@ export const ProfileScreen = ({ navigation }: any) => {
           </View>
         </View>
       )}
-
-      {/* Operations Menu Group */}
-      <View style={styles.menuGroup}>
-        <Text style={styles.groupHeader}>Operasional</Text>
-        <View style={styles.groupCard}>
-          <MenuItem
-            icon={<PrinterIcon color="#0F5936" size={20} />}
-            label="Pengaturan Printer"
-            onPress={() => navigation.navigate('Settings')}
-          />
-          <View style={styles.divider} />
-          <MenuItem
-            icon={<HistoryIcon color="#0F5936" size={20} />}
-            label="Riwayat Transaksi"
-            onPress={() => navigation.navigate('History')}
-          />
-        </View>
-      </View>
 
       {/* Application Menu Group */}
       <View style={styles.menuGroup}>

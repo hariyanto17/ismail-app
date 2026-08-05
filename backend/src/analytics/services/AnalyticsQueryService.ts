@@ -50,7 +50,7 @@ export class AnalyticsQueryService {
     });
 
     const salesMap = new Map<string, number>();
-    productSales.forEach((ps) => {
+    productSales.forEach((ps: any) => {
       salesMap.set(ps.product_id, ps.quantity);
     });
 
@@ -82,13 +82,13 @@ export class AnalyticsQueryService {
       where: { business_date: dateStr },
     });
 
-    const hourlyMap = new Map(hourlyRows.map((h) => [parseInt(h.hour, 10), h]));
+    const hourlyMap = new Map(hourlyRows.map((h: any) => [parseInt(h.hour, 10), h]));
     const openingHour = parseInt(openingTime.split(':')[0], 10);
     const closingHour = parseInt(closingTime.split(':')[0], 10);
     const hourlySales = [];
 
     for (let h = openingHour; h <= closingHour; h++) {
-      const data = hourlyMap.get(h);
+      const data = hourlyMap.get(h) as any;
       hourlySales.push({
         hour: String(h).padStart(2, '0'),
         transactionCount: data?.transaction_count || 0,
@@ -139,7 +139,7 @@ export class AnalyticsQueryService {
     let cashSales = 0;
     let qrisSales = 0;
 
-    dailyRows.forEach((row) => {
+    dailyRows.forEach((row: any) => {
       totalSales += row.total_sales;
       totalTransactions += row.total_transactions;
       cashSales += row.cash_sales;
@@ -167,7 +167,7 @@ export class AnalyticsQueryService {
     });
 
     const productSalesMap = new Map<string, number>();
-    productSalesRows.forEach((ps) => {
+    productSalesRows.forEach((ps: any) => {
       productSalesMap.set(ps.product_id, (productSalesMap.get(ps.product_id) || 0) + ps.quantity);
     });
 
@@ -205,7 +205,7 @@ export class AnalyticsQueryService {
     });
 
     const hourlyMap = new Map<string, { salesAmount: number; transactionCount: number }>();
-    hourlyRows.forEach((row) => {
+    hourlyRows.forEach((row: any) => {
       const existing = hourlyMap.get(row.hour) || { salesAmount: 0, transactionCount: 0 };
       hourlyMap.set(row.hour, {
         salesAmount: existing.salesAmount + row.total_sales,

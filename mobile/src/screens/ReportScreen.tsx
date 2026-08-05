@@ -45,6 +45,7 @@ export const ReportScreen = ({ navigation }: any) => {
   console.log('penjualan response:', response);
   console.log('penjualan error:', error);
   console.log('penjualan isLoading:', isLoading);
+  console.log('reportData', reportData)
   console.log('penjualan reportData totalSales:', reportData.totalSales);
   console.log('penjualan reportData transactions length:', reportData.transactions.length);
 

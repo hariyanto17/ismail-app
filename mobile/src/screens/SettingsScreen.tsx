@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { theme } from '../utils/theme';
 import PrinterService, { BluetoothDevice } from '../services/PrinterService';
 import Button from '../components/Button';
-import BottomTabBar from '../components/BottomTabBar';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const SettingsScreen = ({ navigation }: any) => {
   const [devices, setDevices] = useState<BluetoothDevice[]>([]);
   const [loading, setLoading] = useState(false);
   const [connectedDeviceName, setConnectedDeviceName] = useState<string | null>(null);
+  const { showConfirmation } = useConfirmation();
 
   const fetchDevices = async () => {
     setLoading(true);
@@ -16,7 +17,12 @@ export const SettingsScreen = ({ navigation }: any) => {
       const list = await PrinterService.getPairedDevices();
       setDevices(list);
     } catch (error) {
-      Alert.alert('Kesalahan Bluetooth', 'Gagal mengambil daftar perangkat tersambung.');
+      showConfirmation({
+        title: 'Kesalahan Bluetooth',
+        message: 'Gagal mengambil daftar perangkat tersambung.',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     } finally {
       setLoading(false);
     }
@@ -40,12 +46,27 @@ export const SettingsScreen = ({ navigation }: any) => {
       const success = await PrinterService.connect(device);
       if (success) {
         setConnectedDeviceName(device.name);
-        Alert.alert('Printer Terhubung', `Berhasil terhubung ke ${device.name}`);
+        showConfirmation({
+          title: 'Printer Terhubung',
+          message: `Berhasil terhubung ke ${device.name}`,
+          confirmText: 'OK',
+          variant: 'success',
+        });
       } else {
-        Alert.alert('Koneksi Gagal', `Tidak dapat terhubung ke ${device.name}`);
+        showConfirmation({
+          title: 'Koneksi Gagal',
+          message: `Tidak dapat terhubung ke ${device.name}`,
+          confirmText: 'OK',
+          variant: 'danger',
+        });
       }
     } catch (error) {
-      Alert.alert('Kesalahan Koneksi', 'Terjadi kesalahan saat menyambungkan.');
+      showConfirmation({
+        title: 'Kesalahan Koneksi',
+        message: 'Terjadi kesalahan saat menyambungkan.',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     } finally {
       setLoading(false);
     }
@@ -54,16 +75,31 @@ export const SettingsScreen = ({ navigation }: any) => {
   const handleDisconnect = async () => {
     await PrinterService.disconnect();
     setConnectedDeviceName(null);
-    Alert.alert('Terputus', 'Printer terputus.');
+    showConfirmation({
+      title: 'Terputus',
+      message: 'Printer terputus.',
+      confirmText: 'OK',
+      variant: 'warning',
+    });
   };
 
   const handleTestPrint = async () => {
     setLoading(true);
     try {
       await PrinterService.printTestPage();
-      Alert.alert('Sukses', 'Halaman uji coba berhasil dicetak.');
+      showConfirmation({
+        title: 'Sukses',
+        message: 'Halaman uji coba berhasil dicetak.',
+        confirmText: 'OK',
+        variant: 'success',
+      });
     } catch (error: any) {
-      Alert.alert('Kesalahan Printer', error?.message || 'Gagal mencetak halaman uji coba.');
+      showConfirmation({
+        title: 'Kesalahan Printer',
+        message: error?.message || 'Gagal mencetak halaman uji coba.',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     } finally {
       setLoading(false);
     }

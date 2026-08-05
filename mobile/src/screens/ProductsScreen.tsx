@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput, Switch } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Switch } from 'react-native';
 import {
   useGetProductsQuery,
   useGetCategoriesQuery,
@@ -9,7 +9,7 @@ import {
 } from '../redux/apiSlice';
 import { theme } from '../utils/theme';
 import Button from '../components/Button';
-import BottomTabBar from '../components/BottomTabBar';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const ProductsScreen = ({ navigation }: any) => {
   const { data: productsRes, isLoading: loadingProducts } = useGetProductsQuery(undefined);
@@ -18,6 +18,7 @@ export const ProductsScreen = ({ navigation }: any) => {
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
+  const { showConfirmation } = useConfirmation();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -53,15 +54,30 @@ export const ProductsScreen = ({ navigation }: any) => {
     const parsedPrice = parseInt(price, 10);
 
     if (!name.trim()) {
-      Alert.alert('Kesalahan Validasi', 'Nama produk wajib diisi');
+      showConfirmation({
+        title: 'Kesalahan Validasi',
+        message: 'Nama produk wajib diisi',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
-      Alert.alert('Kesalahan Validasi', 'Harga harus berupa angka bulat positif');
+      showConfirmation({
+        title: 'Kesalahan Validasi',
+        message: 'Harga harus berupa angka bulat positif',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
     if (!categoryId) {
-      Alert.alert('Kesalahan Validasi', 'Silakan pilih kategori');
+      showConfirmation({
+        title: 'Kesalahan Validasi',
+        message: 'Silakan pilih kategori',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
@@ -80,25 +96,35 @@ export const ProductsScreen = ({ navigation }: any) => {
       }
       setModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Gagal Menyimpan', err?.data?.message || 'Terjadi kesalahan');
+      showConfirmation({
+        title: 'Gagal Menyimpan',
+        message: err?.data?.message || 'Terjadi kesalahan',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus produk ini?', [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteProduct(id).unwrap();
-          } catch (err: any) {
-            Alert.alert('Gagal Menghapus', err?.data?.message || 'Terjadi kesalahan');
-          }
-        },
+    showConfirmation({
+      title: 'Konfirmasi Hapus',
+      message: 'Apakah Anda yakin ingin menghapus produk ini?',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteProduct(id).unwrap();
+        } catch (err: any) {
+          showConfirmation({
+            title: 'Gagal Menghapus',
+            message: err?.data?.message || 'Terjadi kesalahan',
+            confirmText: 'OK',
+            variant: 'danger',
+          });
+        }
       },
-    ]);
+    });
   };
 
   return (

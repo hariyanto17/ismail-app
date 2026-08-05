@@ -8,7 +8,6 @@ import {
   Modal,
   TextInput,
   Switch,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -24,8 +23,10 @@ import {
 import { theme } from '../utils/theme';
 import Button from '../components/Button';
 import { UserIcon } from '../components/Icons';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const StoreSettingsScreen = () => {
+  const { showConfirmation } = useConfirmation();
   const { user } = useSelector((state: RootState) => state.auth);
   const isAdmin = user?.role === 'ADMIN';
 
@@ -101,9 +102,19 @@ export const StoreSettingsScreen = () => {
         closing_day: closingDay,
         timezone,
       }).unwrap();
-      Alert.alert('Sukses', 'Pengaturan toko berhasil disimpan');
+      showConfirmation({
+        title: 'Sukses',
+        message: 'Pengaturan toko berhasil disimpan',
+        confirmText: 'OK',
+        variant: 'success',
+      });
     } catch (err: any) {
-      Alert.alert('Kesalahan', err?.data?.message || 'Gagal menyimpan pengaturan');
+      showConfirmation({
+        title: 'Kesalahan',
+        message: err?.data?.message || 'Gagal menyimpan pengaturan',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 
@@ -155,14 +166,29 @@ export const StoreSettingsScreen = () => {
     try {
       if (editingRecId) {
         await updateRecipient({ id: editingRecId, ...payload }).unwrap();
-        Alert.alert('Sukses', 'Penerima berhasil diubah');
+        showConfirmation({
+          title: 'Sukses',
+          message: 'Penerima berhasil diubah',
+          confirmText: 'OK',
+          variant: 'success',
+        });
       } else {
         await createRecipient(payload).unwrap();
-        Alert.alert('Sukses', 'Penerima berhasil ditambahkan');
+        showConfirmation({
+          title: 'Sukses',
+          message: 'Penerima berhasil ditambahkan',
+          confirmText: 'OK',
+          variant: 'success',
+        });
       }
       setRecModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Kesalahan', err?.data?.message || 'Gagal menyimpan penerima');
+      showConfirmation({
+        title: 'Kesalahan',
+        message: err?.data?.message || 'Gagal menyimpan penerima',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 
@@ -177,31 +203,42 @@ export const StoreSettingsScreen = () => {
         is_active: newVal,
       }).unwrap();
     } catch (err) {
-      Alert.alert('Kesalahan', 'Gagal mengubah status aktif');
+      showConfirmation({
+        title: 'Kesalahan',
+        message: 'Gagal mengubah status aktif',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 
   const handleDeleteRecipient = (id: string) => {
     if (!isAdmin) return;
-    Alert.alert(
-      'Hapus Penerima',
-      'Apakah Anda yakin ingin menghapus penerima laporan ini?',
-      [
-        { text: 'Batal', style: 'cancel' },
-        {
-          text: 'Hapus',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteRecipient(id).unwrap();
-              Alert.alert('Sukses', 'Penerima berhasil dihapus');
-            } catch (err) {
-              Alert.alert('Kesalahan', 'Gagal menghapus penerima');
-            }
-          },
-        },
-      ]
-    );
+    showConfirmation({
+      title: 'Hapus Penerima',
+      message: 'Apakah Anda yakin ingin menghapus penerima laporan ini?',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteRecipient(id).unwrap();
+          showConfirmation({
+            title: 'Sukses',
+            message: 'Penerima berhasil dihapus',
+            confirmText: 'OK',
+            variant: 'success',
+          });
+        } catch (err) {
+          showConfirmation({
+            title: 'Kesalahan',
+            message: 'Gagal menghapus penerima',
+            confirmText: 'OK',
+            variant: 'danger',
+          });
+        }
+      },
+    });
   };
 
   const openTimePicker = (target: 'OPENING' | 'CLOSING') => {

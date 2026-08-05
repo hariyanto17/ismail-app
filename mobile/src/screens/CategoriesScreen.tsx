@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
@@ -8,12 +8,14 @@ import {
 } from '../redux/apiSlice';
 import { theme } from '../utils/theme';
 import Button from '../components/Button';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const CategoriesScreen = () => {
   const { data: response, isLoading } = useGetCategoriesQuery(undefined);
   const [createCategory] = useCreateCategoryMutation();
   const [updateCategory] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
+  const { showConfirmation } = useConfirmation();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,7 +37,12 @@ export const CategoriesScreen = () => {
 
   const handleSave = async () => {
     if (!categoryName.trim()) {
-      Alert.alert('Kesalahan Validasi', 'Nama kategori tidak boleh kosong');
+      showConfirmation({
+        title: 'Kesalahan Validasi',
+        message: 'Nama kategori tidak boleh kosong',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
@@ -47,25 +54,35 @@ export const CategoriesScreen = () => {
       }
       setModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Gagal Menyimpan', err?.data?.message || 'Terjadi kesalahan');
+      showConfirmation({
+        title: 'Gagal Menyimpan',
+        message: err?.data?.message || 'Terjadi kesalahan',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus kategori ini?', [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteCategory(id).unwrap();
-          } catch (err: any) {
-            Alert.alert('Gagal Menghapus', err?.data?.message || 'Terjadi kesalahan');
-          }
-        },
+    showConfirmation({
+      title: 'Konfirmasi Hapus',
+      message: 'Apakah Anda yakin ingin menghapus kategori ini?',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteCategory(id).unwrap();
+        } catch (err: any) {
+          showConfirmation({
+            title: 'Gagal Menghapus',
+            message: err?.data?.message || 'Terjadi kesalahan',
+            confirmText: 'OK',
+            variant: 'danger',
+          });
+        }
       },
-    ]);
+    });
   };
 
   return (

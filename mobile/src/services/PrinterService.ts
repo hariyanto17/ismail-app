@@ -1,4 +1,5 @@
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
+import { showGlobalConfirmation } from '../components/ConfirmationProvider';
 import { BluetoothManager, BluetoothEscposPrinter } from '@vardrz/react-native-bluetooth-escpos-printer';
 import { logoBase64 } from './LogoBase64';
 
@@ -114,7 +115,12 @@ class PrinterService {
       return true;
     } catch (error) {
       console.error('[PrinterService] Connection failed:', error);
-      Alert.alert('Connection Error', 'Could not connect to the Bluetooth printer.');
+      showGlobalConfirmation({
+        title: 'Kesalahan Koneksi',
+        message: 'Tidak dapat terhubung ke printer Bluetooth.',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
       return false;
     }
   }
@@ -139,14 +145,24 @@ class PrinterService {
 
   async printReceipt(receiptText: string): Promise<boolean> {
     if (!this.connectedDevice) {
-      Alert.alert('Printer Error', 'Printer not connected. Formatted receipt printed to console log.');
+      showGlobalConfirmation({
+        title: 'Kesalahan Printer',
+        message: 'Printer tidak terhubung. Struk tercetak di log konsol.',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       console.log('--- FORMATTED ESC/POS RECEIPT (NOT CONNECTED) ---\n' + receiptText);
       return false;
     }
 
     if (this.connectedDevice.address === '00:11:22:33:44:55' || this.connectedDevice.address === 'AA:BB:CC:DD:EE:FF') {
       console.log(`[PrinterService] (Simulated Print) to ${this.connectedDevice.name}:\n${receiptText}`);
-      Alert.alert('Printing Successful', 'The receipt has been printed (Simulated).');
+      showGlobalConfirmation({
+        title: 'Pencetakan Sukses',
+        message: 'Struk berhasil dicetak (Simulasi).',
+        confirmText: 'OK',
+        variant: 'success',
+      });
       return true;
     }
 
@@ -187,11 +203,21 @@ class PrinterService {
       await this.cut();
 
       console.log('[PrinterService] Printed successfully to hardware.');
-      Alert.alert('Printing Successful', 'The receipt has been printed successfully.');
+      showGlobalConfirmation({
+        title: 'Pencetakan Sukses',
+        message: 'Struk berhasil dicetak ke hardware.',
+        confirmText: 'OK',
+        variant: 'success',
+      });
       return true;
     } catch (error) {
       console.error('[PrinterService] Print error:', error);
-      Alert.alert('Print Error', 'An error occurred while sending data to the printer.');
+      showGlobalConfirmation({
+        title: 'Kesalahan Cetak',
+        message: 'Terjadi kesalahan saat mengirim data ke printer.',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
       return false;
     }
   }

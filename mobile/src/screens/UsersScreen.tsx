@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
 import {
   useGetUsersQuery,
   useCreateUserMutation,
@@ -8,12 +8,14 @@ import {
 } from '../redux/apiSlice';
 import { theme } from '../utils/theme';
 import Button from '../components/Button';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const UsersScreen = () => {
   const { data: usersRes, isLoading } = useGetUsersQuery(undefined);
   const [createUser] = useCreateUserMutation();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
+  const { showConfirmation } = useConfirmation();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,12 +48,22 @@ export const UsersScreen = () => {
 
   const handleSave = async () => {
     if (!username.trim() || !fullName.trim()) {
-      Alert.alert('Kesalahan Validasi', 'Username dan Nama Lengkap wajib diisi');
+      showConfirmation({
+        title: 'Kesalahan Validasi',
+        message: 'Username dan Nama Lengkap wajib diisi',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
     if (!editingId && !password) {
-      Alert.alert('Kesalahan Validasi', 'Kata sandi wajib diisi untuk pengguna baru');
+      showConfirmation({
+        title: 'Kesalahan Validasi',
+        message: 'Kata sandi wajib diisi untuk pengguna baru',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
@@ -73,25 +85,35 @@ export const UsersScreen = () => {
       }
       setModalVisible(false);
     } catch (err: any) {
-      Alert.alert('Gagal Menyimpan', err?.data?.message || 'Terjadi kesalahan');
+      showConfirmation({
+        title: 'Gagal Menyimpan',
+        message: err?.data?.message || 'Terjadi kesalahan',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus profil pengguna ini?', [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteUser(id).unwrap();
-          } catch (err: any) {
-            Alert.alert('Gagal Menghapus', err?.data?.message || 'Terjadi kesalahan');
-          }
-        },
+    showConfirmation({
+      title: 'Konfirmasi Hapus',
+      message: 'Apakah Anda yakin ingin menghapus profil pengguna ini?',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteUser(id).unwrap();
+        } catch (err: any) {
+          showConfirmation({
+            title: 'Gagal Menghapus',
+            message: err?.data?.message || 'Terjadi kesalahan',
+            confirmText: 'OK',
+            variant: 'danger',
+          });
+        }
       },
-    ]);
+    });
   };
 
   return (

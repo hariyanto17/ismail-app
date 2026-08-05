@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
 import { clearCredentials } from '../redux/authSlice';
@@ -15,36 +15,35 @@ import {
   RightIcon,
   SettingsIcon,
 } from '../components/Icons';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const ProfileScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { showConfirmation } = useConfirmation();
 
   const isAdmin = user?.role === 'ADMIN';
 
   const handleLogout = () => {
-    Alert.alert(
-      'Konfirmasi Keluar',
-      'Apakah Anda yakin ingin keluar dari POS Kafe?',
-      [
-        { text: 'Batal', style: 'cancel' },
-        {
-          text: 'Keluar',
-          style: 'destructive',
-          onPress: () => {
-            dispatch(clearCredentials());
-          },
-        },
-      ]
-    );
+    showConfirmation({
+      title: 'Konfirmasi Keluar',
+      message: 'Apakah Anda yakin ingin keluar dari POS Kafe?',
+      confirmText: 'Keluar',
+      cancelText: 'Batal',
+      variant: 'danger',
+      onConfirm: () => {
+        dispatch(clearCredentials());
+      },
+    });
   };
 
   const handleAbout = () => {
-    Alert.alert(
-      'Tentang POS Kafe',
-      'POS Kafe MVP\nVersi 1.0.0\n\nDioptimalkan untuk operasional harian yang cepat dan pencetakan kepadatan tinggi.',
-      [{ text: 'OK' }]
-    );
+    showConfirmation({
+      title: 'Tentang POS Kafe',
+      message: 'POS Kafe MVP\nVersi 1.0.0\n\nDioptimalkan untuk operasional harian yang cepat dan pencetakan kepadatan tinggi.',
+      confirmText: 'OK',
+      variant: 'info',
+    });
   };
 
   const MenuItem = ({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) => (

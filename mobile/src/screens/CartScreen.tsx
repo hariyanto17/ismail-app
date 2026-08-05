@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, TextInput, Alert, useWindowDimensions, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, TextInput, useWindowDimensions, Modal } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useGetProductsQuery, useGetCategoriesQuery, useCreateTransactionMutation } from '../redux/apiSlice';
 import { addToCart, updateQuantity, removeFromCart, clearCart, selectCartTotal } from '../redux/cartSlice';
@@ -10,6 +10,7 @@ import Button from '../components/Button';
 import ProductImage from '../components/ProductImage';
 import { isTablet } from '../utils/device';
 import { CartIcon, CashIcon, QrisIcon } from '../components/Icons';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 interface ProductCardProps {
   item: any;
@@ -65,6 +66,7 @@ export const CartScreen = ({ navigation }: any) => {
   const { data: productsRes, isLoading: loadingProducts } = useGetProductsQuery(undefined);
   const { data: categoriesRes } = useGetCategoriesQuery(undefined);
   const [createTransaction, { isLoading: isCheckingOut }] = useCreateTransactionMutation();
+  const { showConfirmation } = useConfirmation();
 
   const products = productsRes?.data || [];
   const categories = categoriesRes?.data || [];
@@ -117,13 +119,23 @@ export const CartScreen = ({ navigation }: any) => {
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
-      Alert.alert('Keranjang Kosong', 'Silakan tambahkan beberapa produk ke keranjang terlebih dahulu.');
+      showConfirmation({
+        title: 'Keranjang Kosong',
+        message: 'Silakan tambahkan beberapa produk ke keranjang terlebih dahulu.',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
     const parsedPaid = parseInt(paidAmount, 10);
     if (paymentMethod === 'CASH' && (isNaN(parsedPaid) || parsedPaid < total)) {
-      Alert.alert('Kesalahan Pembayaran', 'Jumlah pembayaran harus sama dengan atau lebih besar dari total belanja.');
+      showConfirmation({
+        title: 'Kesalahan Pembayaran',
+        message: 'Jumlah pembayaran harus sama dengan atau lebih besar dari total belanja.',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
@@ -140,31 +152,38 @@ export const CartScreen = ({ navigation }: any) => {
       const response = await createTransaction(payload).unwrap();
       if (response.success) {
         const txData = response.data;
-        Alert.alert(
-          'Transaksi Selesai',
-          `Nomor Struk: ${txData.invoice_number}\nTotal: IDR ${txData.total}`,
-          [
-            {
-              text: 'OK',
-              onPress: async () => {
-                // Auto print receipt
-                const receiptText = PrinterService.formatReceipt(txData);
-                await PrinterService.printReceipt(receiptText);
+        showConfirmation({
+          title: 'Transaksi Selesai',
+          message: `Nomor Struk: ${txData.invoice_number}\nTotal: IDR ${txData.total}`,
+          confirmText: 'OK',
+          variant: 'success',
+          onConfirm: async () => {
+            // Auto print receipt
+            const receiptText = PrinterService.formatReceipt(txData);
+            await PrinterService.printReceipt(receiptText);
 
-                // Auto reset fields for next customer
-                dispatch(clearCart());
-                setPaidAmount('');
-                setSearchQuery('');
-                setCartVisible(false);
-              },
-            },
-          ]
-        );
+            // Auto reset fields for next customer
+            dispatch(clearCart());
+            setPaidAmount('');
+            setSearchQuery('');
+            setCartVisible(false);
+          },
+        });
       } else {
-        Alert.alert('Transaksi Gagal', response.message || 'Kesalahan tidak diketahui');
+        showConfirmation({
+          title: 'Transaksi Gagal',
+          message: response.message || 'Kesalahan tidak diketahui',
+          confirmText: 'OK',
+          variant: 'danger',
+        });
       }
     } catch (err: any) {
-      Alert.alert('Kesalahan Transaksi', err?.data?.message || 'Masalah koneksi server');
+      showConfirmation({
+        title: 'Kesalahan Transaksi',
+        message: err?.data?.message || 'Masalah koneksi server',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 

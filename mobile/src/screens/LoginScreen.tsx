@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../redux/apiSlice';
@@ -7,10 +7,12 @@ import { setCredentials } from '../redux/authSlice';
 import { theme } from '../utils/theme';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const LoginScreen = () => {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
+  const { showConfirmation } = useConfirmation();
 
   const {
     control,
@@ -35,12 +37,22 @@ export const LoginScreen = () => {
           })
         );
       } else {
-        Alert.alert('Masuk Gagal', response.message || 'Kesalahan tidak diketahui');
+        showConfirmation({
+          title: 'Masuk Gagal',
+          message: response.message || 'Kesalahan tidak diketahui',
+          confirmText: 'OK',
+          variant: 'danger',
+        });
       }
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
       const errMsg = err?.data?.message || 'Tidak dapat terhubung ke server';
-      Alert.alert('Kesalahan Masuk', errMsg);
+      showConfirmation({
+        title: 'Kesalahan Masuk',
+        message: errMsg,
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 

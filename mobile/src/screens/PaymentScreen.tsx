@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useCreateTransactionMutation } from '../redux/apiSlice';
 import { clearCart, selectCartTotal } from '../redux/cartSlice';
@@ -7,10 +7,12 @@ import { RootState } from '../redux/store';
 import { theme } from '../utils/theme';
 import PrinterService from '../services/PrinterService';
 import Button from '../components/Button';
+import { useConfirmation } from '../components/ConfirmationProvider';
 
 export const PaymentScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const [createTransaction, { isLoading }] = useCreateTransactionMutation();
+  const { showConfirmation } = useConfirmation();
 
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const total = useSelector(selectCartTotal);
@@ -40,7 +42,12 @@ export const PaymentScreen = ({ navigation }: any) => {
     // Validation
     const parsedPaid = parseInt(paidAmount, 10);
     if (paymentMethod === 'CASH' && (isNaN(parsedPaid) || parsedPaid < total)) {
-      Alert.alert('Kesalahan Pembayaran', 'Jumlah pembayaran harus sama dengan atau lebih besar dari total belanja.');
+      showConfirmation({
+        title: 'Kesalahan Pembayaran',
+        message: 'Jumlah pembayaran harus sama dengan atau lebih besar dari total belanja.',
+        confirmText: 'OK',
+        variant: 'warning',
+      });
       return;
     }
 
@@ -58,12 +65,27 @@ export const PaymentScreen = ({ navigation }: any) => {
       if (response.success) {
         setSuccessTx(response.data);
         dispatch(clearCart());
-        Alert.alert('Transaksi Selesai', 'Transaksi berhasil disimpan!');
+        showConfirmation({
+          title: 'Transaksi Selesai',
+          message: 'Transaksi berhasil disimpan!',
+          confirmText: 'OK',
+          variant: 'success',
+        });
       } else {
-        Alert.alert('Transaksi Gagal', response.message || 'Kesalahan tidak diketahui');
+        showConfirmation({
+          title: 'Transaksi Gagal',
+          message: response.message || 'Kesalahan tidak diketahui',
+          confirmText: 'OK',
+          variant: 'danger',
+        });
       }
     } catch (err: any) {
-      Alert.alert('Kesalahan Transaksi', err?.data?.message || 'Masalah koneksi server');
+      showConfirmation({
+        title: 'Kesalahan Transaksi',
+        message: err?.data?.message || 'Masalah koneksi server',
+        confirmText: 'OK',
+        variant: 'danger',
+      });
     }
   };
 

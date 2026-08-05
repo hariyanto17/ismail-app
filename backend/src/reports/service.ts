@@ -167,7 +167,7 @@ export class ReportService {
         EXTRACT(HOUR FROM created_at AT TIME ZONE 'UTC' AT TIME ZONE ${timezone})::int as hour,
         COUNT(id)::int as count,
         COALESCE(SUM(total), 0)::float as amount
-      FROM "Transaction"
+      FROM "transactions"
       WHERE created_at >= ${start} AND created_at <= ${end}
       GROUP BY hour
       ORDER BY hour

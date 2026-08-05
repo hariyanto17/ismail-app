@@ -1,5 +1,6 @@
 import prisma from '../config/prisma';
 import { SettingCache } from '../reports/cache/SettingCache';
+import SchedulerService from '../reports/scheduler/SchedulerService';
 
 export class AppSettingService {
   async getOrCreate() {
@@ -49,6 +50,7 @@ export class AppSettingService {
       },
     });
     await SettingCache.refresh();
+    await SchedulerService.getInstance().reload();
     return updated;
   }
 }

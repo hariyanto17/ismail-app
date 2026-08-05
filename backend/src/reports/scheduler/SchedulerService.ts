@@ -7,6 +7,15 @@ import ReportLogService from '../services/ReportLogService';
 import { ReportType, ReportStatus } from '@prisma/client';
 
 export class SchedulerService {
+  private static instance: SchedulerService | null = null;
+
+  static getInstance(): SchedulerService {
+    if (!SchedulerService.instance) {
+      SchedulerService.instance = new SchedulerService();
+    }
+    return SchedulerService.instance;
+  }
+
   private isRunning: boolean = false;
   private intervalHandle?: ReturnType<typeof setInterval>;
   private reportSender = new ReportSenderService();

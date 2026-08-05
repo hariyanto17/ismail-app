@@ -24,12 +24,12 @@ export const ProfileScreen = ({ navigation }: any) => {
 
   const handleLogout = () => {
     Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to sign out of Cafe POS?',
+      'Konfirmasi Keluar',
+      'Apakah Anda yakin ingin keluar dari POS Kafe?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Batal', style: 'cancel' },
         {
-          text: 'Logout',
+          text: 'Keluar',
           style: 'destructive',
           onPress: () => {
             dispatch(clearCredentials());
@@ -41,8 +41,8 @@ export const ProfileScreen = ({ navigation }: any) => {
 
   const handleAbout = () => {
     Alert.alert(
-      'About Cafe POS',
-      'Cafe Point of Sale MVP\nVersion 1.0.0\n\nOptimized for fast daily operations and high-density printing.',
+      'Tentang POS Kafe',
+      'POS Kafe MVP\nVersi 1.0.0\n\nDioptimalkan untuk operasional harian yang cepat dan pencetakan kepadatan tinggi.',
       [{ text: 'OK' }]
     );
   };
@@ -66,7 +66,7 @@ export const ProfileScreen = ({ navigation }: any) => {
             {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
           </Text>
         </View>
-        <Text style={styles.fullName}>{user?.full_name || 'Cafe User'}</Text>
+        <Text style={styles.fullName}>{user?.full_name || 'Pengguna Kafe'}</Text>
         <Text style={styles.username}>@{user?.username || 'username'}</Text>
         
         <View style={styles.roleBadge}>
@@ -77,29 +77,29 @@ export const ProfileScreen = ({ navigation }: any) => {
       {/* Administrator Menu Group */}
       {isAdmin && (
         <View style={styles.menuGroup}>
-          <Text style={styles.groupHeader}>Management</Text>
+          <Text style={styles.groupHeader}>Manajemen</Text>
           <View style={styles.groupCard}>
             <MenuItem
               icon={<SettingsIcon color="#0F5936" size={20} />}
-              label="Store Settings"
+              label="Pengaturan Toko"
               onPress={() => navigation.navigate('StoreSettings')}
             />
             <View style={styles.divider} />
             <MenuItem
               icon={<ProductIcon color="#0F5936" size={20} />}
-              label="Products"
+              label="Produk"
               onPress={() => navigation.navigate('Products')}
             />
             <View style={styles.divider} />
             <MenuItem
               icon={<CategoryIcon color="#0F5936" size={20} />}
-              label="Categories"
+              label="Kategori"
               onPress={() => navigation.navigate('Categories')}
             />
             <View style={styles.divider} />
             <MenuItem
               icon={<UsersIcon color="#0F5936" size={20} />}
-              label="Users"
+              label="Pengguna"
               onPress={() => navigation.navigate('Users')}
             />
           </View>
@@ -108,17 +108,17 @@ export const ProfileScreen = ({ navigation }: any) => {
 
       {/* Operations Menu Group */}
       <View style={styles.menuGroup}>
-        <Text style={styles.groupHeader}>Operations</Text>
+        <Text style={styles.groupHeader}>Operasional</Text>
         <View style={styles.groupCard}>
           <MenuItem
             icon={<PrinterIcon color="#0F5936" size={20} />}
-            label="Printer Settings"
+            label="Pengaturan Printer"
             onPress={() => navigation.navigate('Settings')}
           />
           <View style={styles.divider} />
           <MenuItem
             icon={<HistoryIcon color="#0F5936" size={20} />}
-            label="Transaction History"
+            label="Riwayat Transaksi"
             onPress={() => navigation.navigate('History')}
           />
         </View>
@@ -126,23 +126,23 @@ export const ProfileScreen = ({ navigation }: any) => {
 
       {/* Application Menu Group */}
       <View style={styles.menuGroup}>
-        <Text style={styles.groupHeader}>Application</Text>
+        <Text style={styles.groupHeader}>Aplikasi</Text>
         <View style={styles.groupCard}>
           <MenuItem
             icon={<InfoIcon color="#0F5936" size={20} />}
-            label="About"
+            label="Tentang"
             onPress={handleAbout}
           />
           <View style={styles.divider} />
           <MenuItem
             icon={<LogoutIcon color="#DC2626" size={20} />}
-            label="Logout"
+            label="Keluar"
             onPress={handleLogout}
           />
         </View>
       </View>
 
-      <Text style={styles.versionText}>Application Version 1.0.0 (MVP)</Text>
+      <Text style={styles.versionText}>Versi Aplikasi 1.0.0 (MVP)</Text>
     </ScrollView>
   );
 };

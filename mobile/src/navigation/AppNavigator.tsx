@@ -22,6 +22,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ReportScreen from '../screens/ReportScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import StoreSettingsScreen from '../screens/StoreSettingsScreen';
+import AnalyticsScreen from '../screens/AnalyticsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,6 +66,7 @@ const ProfileStack = () => (
     <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Printer Settings' }} />
     <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'Sales History' }} />
     <Stack.Screen name="StoreSettings" component={StoreSettingsScreen} options={{ title: 'Store Settings' }} />
+    <Stack.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Analisis Penjualan' }} />
   </Stack.Navigator>
 );
 

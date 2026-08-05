@@ -11,6 +11,7 @@ router.use(authenticate);
 
 // Viewing reports: both ADMIN and CASHIER
 router.get('/daily', authorize([Role.ADMIN, Role.CASHIER]), reportController.getDailyReport);
+router.get('/analytics', authorize([Role.ADMIN]), reportController.getAnalyticsReport);
 
 // Preview endpoints: ADMIN only
 router.get('/daily/preview', authorize([Role.ADMIN]), reportController.previewDailyReport);

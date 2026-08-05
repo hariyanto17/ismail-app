@@ -135,6 +135,10 @@ export const apiSlice = createApi({
       query: (date) => `/reports/daily?date=${date}`,
       providesTags: ['Transaction'],
     }),
+    getAnalyticsReport: builder.query({
+      query: (date) => `/reports/analytics?date=${date}`,
+      providesTags: ['Transaction'],
+    }),
 
     // Report Recipients
     getReportRecipients: builder.query({
@@ -198,6 +202,7 @@ export const {
   useGetTransactionDetailQuery,
   useCreateTransactionMutation,
   useGetDailyReportQuery,
+  useGetAnalyticsReportQuery,
   useGetReportRecipientsQuery,
   useCreateReportRecipientMutation,
   useUpdateReportRecipientMutation,

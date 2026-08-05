@@ -32,6 +32,29 @@ export class ReportController {
     }
   };
 
+  getAnalyticsReport = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let dateStr = req.query.date as string;
+      if (!dateStr) {
+        dateStr = getWibDateString();
+      }
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(dateStr)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid date format. Expected YYYY-MM-DD.',
+        });
+      }
+      const analyticsData = await reportService.getAnalytics(dateStr);
+      res.status(200).json({
+        success: true,
+        data: analyticsData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   previewDailyReport = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const message = await previewService.previewDaily();

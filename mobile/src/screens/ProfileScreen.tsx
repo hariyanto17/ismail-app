@@ -14,6 +14,7 @@ import {
   LogoutIcon,
   RightIcon,
   SettingsIcon,
+  ReportIcon,
 } from '../components/Icons';
 import { useConfirmation } from '../components/ConfirmationProvider';
 
@@ -78,6 +79,12 @@ export const ProfileScreen = ({ navigation }: any) => {
         <View style={styles.menuGroup}>
           <Text style={styles.groupHeader}>Manajemen</Text>
           <View style={styles.groupCard}>
+            <MenuItem
+              icon={<ReportIcon color="#0F5936" size={20} />}
+              label="Analisis Penjualan"
+              onPress={() => navigation.navigate('Analytics')}
+            />
+            <View style={styles.divider} />
             <MenuItem
               icon={<SettingsIcon color="#0F5936" size={20} />}
               label="Pengaturan Toko"

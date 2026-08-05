@@ -89,6 +89,12 @@ export const ProfileScreen = ({ navigation }: any) => {
             label="Riwayat Transaksi"
             onPress={() => navigation.navigate('History')}
           />
+          <View style={styles.divider} />
+          <MenuItem
+            icon={<SettingsIcon color="#0F5936" size={20} />}
+            label="Ganti Kata Sandi"
+            onPress={() => navigation.navigate('ChangePassword')}
+          />
         </View>
       </View>
 

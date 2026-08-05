@@ -25,6 +25,14 @@ export const apiSlice = createApi({
         body: credentials,
       }),
     }),
+    changePassword: builder.mutation({
+      query: (passwords) => ({
+        url: '/auth/change-password',
+        method: 'POST',
+        body: passwords,
+      }),
+    }),
+
 
     // Users
     getUsers: builder.query({
@@ -194,6 +202,7 @@ export const apiSlice = createApi({
 
 export const {
   useLoginMutation,
+  useChangePasswordMutation,
   useGetUsersQuery,
   useCreateUserMutation,
   useUpdateUserMutation,

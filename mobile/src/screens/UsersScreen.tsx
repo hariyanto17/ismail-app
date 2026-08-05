@@ -25,6 +25,8 @@ export const UsersScreen = () => {
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'ADMIN' | 'CASHIER'>('CASHIER');
+  const [isActive, setIsActive] = useState(true);
+
 
   const users = usersRes?.data || [];
 
@@ -34,6 +36,7 @@ export const UsersScreen = () => {
     setFullName('');
     setPassword('');
     setRole('CASHIER');
+    setIsActive(true);
     setModalVisible(true);
   };
 
@@ -43,6 +46,7 @@ export const UsersScreen = () => {
     setFullName(user.full_name);
     setPassword('');
     setRole(user.role);
+    setIsActive(user.is_active !== false);
     setModalVisible(true);
   };
 
@@ -72,6 +76,7 @@ export const UsersScreen = () => {
         username,
         full_name: fullName,
         role,
+        is_active: isActive,
       };
 
       if (password) {
@@ -137,7 +142,7 @@ export const UsersScreen = () => {
               <View style={styles.userInfo}>
                 <Text style={styles.itemName}>{item.full_name}</Text>
                 <Text style={styles.itemMeta}>
-                  @{item.username} • {item.role}
+                  @{item.username} • {item.role} • {item.is_active !== false ? 'Aktif' : 'Nonaktif'}
                 </Text>
               </View>
               <View style={styles.actions}>
@@ -207,6 +212,26 @@ export const UsersScreen = () => {
               >
                 <Text style={[styles.roleTextLabel, role === 'ADMIN' ? styles.roleTextSelected : null]}>
                   Admin
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Status Pengguna</Text>
+            <View style={styles.roleContainer}>
+              <TouchableOpacity
+                style={[styles.roleBtn, isActive ? styles.roleBtnSelected : null]}
+                onPress={() => setIsActive(true)}
+              >
+                <Text style={[styles.roleTextLabel, isActive ? styles.roleTextSelected : null]}>
+                  Aktif
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.roleBtn, !isActive ? styles.roleBtnSelected : null]}
+                onPress={() => setIsActive(false)}
+              >
+                <Text style={[styles.roleTextLabel, !isActive ? styles.roleTextSelected : null]}>
+                  Nonaktif
                 </Text>
               </TouchableOpacity>
             </View>

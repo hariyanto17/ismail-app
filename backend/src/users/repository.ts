@@ -28,6 +28,7 @@ export class UserRepository {
         password: data.passwordHash,
         full_name: data.full_name,
         role: data.role,
+        is_active: data.is_active !== undefined ? data.is_active : true,
       },
     });
   }
@@ -40,6 +41,7 @@ export class UserRepository {
         password: data.passwordHash,
         full_name: data.full_name,
         role: data.role,
+        is_active: data.is_active,
       },
     });
   }

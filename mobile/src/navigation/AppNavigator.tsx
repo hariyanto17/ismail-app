@@ -24,6 +24,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 import StoreSettingsScreen from '../screens/StoreSettingsScreen';
 import DailyAnalyticsScreen from '../screens/DailyAnalyticsScreen';
 import MonthlyAnalyticsScreen from '../screens/MonthlyAnalyticsScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -68,7 +70,9 @@ const ProfileStack = () => (
     <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'Sales History' }} />
     <Stack.Screen name="DailyAnalytics" component={DailyAnalyticsScreen} options={{ title: 'Analisis Harian' }} />
     <Stack.Screen name="MonthlyAnalytics" component={MonthlyAnalyticsScreen} options={{ title: 'Analisis Bulanan' }} />
+    <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Ganti Kata Sandi' }} />
   </Stack.Navigator>
+
 );
 
 const MainTabs = () => (

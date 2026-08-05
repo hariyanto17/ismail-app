@@ -7,6 +7,7 @@ export const createUserSchema = z.object({
     password: z.string().min(6).max(100),
     full_name: z.string().min(2).max(100),
     role: z.nativeEnum(Role),
+    is_active: z.boolean().optional(),
   }),
 });
 
@@ -16,5 +17,6 @@ export const updateUserSchema = z.object({
     password: z.string().min(6).max(100).optional(),
     full_name: z.string().min(2).max(100).optional(),
     role: z.nativeEnum(Role).optional(),
+    is_active: z.boolean().optional(),
   }),
 });

@@ -45,4 +45,22 @@ export class AuthController {
       next(error);
     }
   };
+
+  changePassword = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError('Not authenticated');
+      }
+      const { currentPassword, newPassword, confirmPassword } = req.body;
+      await this.authService.changePassword(
+        req.user.id,
+        currentPassword,
+        newPassword,
+        confirmPassword
+      );
+      res.json({ success: true, data: { message: 'Password changed successfully' } });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

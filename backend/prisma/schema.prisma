@@ -23,6 +23,7 @@ model User {
   password     String
   full_name    String
   role         Role
+  is_active    Boolean       @default(true)
   transactions Transaction[]
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt

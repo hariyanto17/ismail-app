@@ -5,6 +5,7 @@ export interface CreateUserDto {
   password?: string;
   full_name: string;
   role: Role;
+  is_active?: boolean;
 }
 
 export interface UpdateUserDto {
@@ -12,6 +13,7 @@ export interface UpdateUserDto {
   password?: string;
   full_name?: string;
   role?: Role;
+  is_active?: boolean;
 }
 
 export interface UserResponseDto {
@@ -19,6 +21,7 @@ export interface UserResponseDto {
   username: string;
   full_name: string;
   role: Role;
+  is_active: boolean;
   created_at: Date;
   updated_at: Date;
 }

@@ -3,6 +3,7 @@ import { UserRepository } from './repository';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from './dto';
 import { BadRequestError, NotFoundError } from '../common/errors';
 import { User } from '@prisma/client';
+import prisma from '../config/prisma';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
@@ -13,6 +14,7 @@ export class UserService {
       username: user.username,
       full_name: user.full_name,
       role: user.role,
+      is_active: user.is_active,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };
@@ -40,6 +42,22 @@ export class UserService {
       throw new BadRequestError('Username is already taken');
     }
 
+    // Starter SaaS Limit Check
+    if (data.is_active !== false) {
+      const activeCount = await prisma.user.count({
+        where: {
+          role: data.role,
+          is_active: true,
+        },
+      });
+      if (data.role === 'ADMIN' && activeCount >= 1) {
+        throw new BadRequestError('Starter Edition only allows one active administrator.');
+      }
+      if (data.role === 'CASHIER' && activeCount >= 1) {
+        throw new BadRequestError('Starter Edition only allows one active cashier.');
+      }
+    }
+
     const passwordHash = await bcrypt.hash(data.password, 10);
     const user = await this.userRepository.create({
       ...data,
@@ -58,6 +76,26 @@ export class UserService {
       const usernameConflict = await this.userRepository.findByUsername(data.username);
       if (usernameConflict) {
         throw new BadRequestError('Username is already taken');
+      }
+    }
+
+    // Starter SaaS Limit Check
+    const targetRole = data.role !== undefined ? data.role : existingUser.role;
+    const targetActive = data.is_active !== undefined ? data.is_active : existingUser.is_active;
+
+    if (targetActive) {
+      const activeCount = await prisma.user.count({
+        where: {
+          role: targetRole,
+          is_active: true,
+          id: { not: id },
+        },
+      });
+      if (targetRole === 'ADMIN' && activeCount >= 1) {
+        throw new BadRequestError('Starter Edition only allows one active administrator.');
+      }
+      if (targetRole === 'CASHIER' && activeCount >= 1) {
+        throw new BadRequestError('Starter Edition only allows one active cashier.');
       }
     }
 

@@ -85,4 +85,45 @@ export class AuthService {
       role: user.role,
     };
   }
+
+  async changePassword(
+    userId: string,
+    currentPassword?: string,
+    newPassword?: string,
+    confirmPassword?: string
+  ): Promise<void> {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      throw new UnauthorizedError('All password fields are required.');
+    }
+
+    const user = await this.authRepository.findUserById(userId);
+    if (!user) {
+      throw new UnauthorizedError('User not found.');
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError('Current password is incorrect.');
+    }
+
+    // Verify new and confirm passwords match
+    if (newPassword !== confirmPassword) {
+      throw new UnauthorizedError('New password and confirm password do not match.');
+    }
+
+    // Verify minimum length
+    if (newPassword.length < 6) {
+      throw new UnauthorizedError('New password must be at least 6 characters long.');
+    }
+
+    // Verify new password !== current password
+    if (currentPassword === newPassword) {
+      throw new UnauthorizedError('New password cannot be identical to the current password.');
+    }
+
+    // Hash and save new password
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.authRepository.updatePassword(userId, passwordHash);
+  }
 }

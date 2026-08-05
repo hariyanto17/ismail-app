@@ -66,7 +66,20 @@ export class AnalyticsController {
 
   rebuildAnalytics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await AnalyticsRebuildService.rebuildAll();
+      const { from, to, date } = req.body;
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+      if (from && !dateRegex.test(from)) {
+        return res.status(400).json({ success: false, message: 'Invalid from date format. Expected YYYY-MM-DD.' });
+      }
+      if (to && !dateRegex.test(to)) {
+        return res.status(400).json({ success: false, message: 'Invalid to date format. Expected YYYY-MM-DD.' });
+      }
+      if (date && !dateRegex.test(date)) {
+        return res.status(400).json({ success: false, message: 'Invalid date format. Expected YYYY-MM-DD.' });
+      }
+
+      const result = await AnalyticsRebuildService.rebuildAll({ from, to, date });
       res.status(200).json({
         success: true,
         data: result,

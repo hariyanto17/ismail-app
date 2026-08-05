@@ -32,10 +32,14 @@ export class AnalyticsQueryService {
       where: { business_date: dateStr },
     });
 
+    const totalSales = dailyRow?.total_sales || 0;
+    const totalTransactions = dailyRow?.total_transactions || 0;
+    const averageTransactionValue = totalTransactions > 0 ? Math.round(totalSales / totalTransactions) : 0;
+
     const summary = {
-      totalSales: dailyRow?.total_sales || 0,
-      totalTransactions: dailyRow?.total_transactions || 0,
-      averageTransactionValue: dailyRow?.average_transaction || 0,
+      totalSales,
+      totalTransactions,
+      averageTransactionValue,
       cashSales: dailyRow?.cash_sales || 0,
       qrisSales: dailyRow?.qris_sales || 0,
     };

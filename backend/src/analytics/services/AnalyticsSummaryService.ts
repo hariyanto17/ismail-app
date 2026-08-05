@@ -23,38 +23,23 @@ export class AnalyticsSummaryService {
     const cashSales = isCash ? totalSales : 0;
     const qrisSales = !isCash ? totalSales : 0;
 
-    // 1. Update AnalyticsDaily
-    const dailyRow = await tx.analyticsDaily.findUnique({
+    // 1. Update AnalyticsDaily using upsert
+    await tx.analyticsDaily.upsert({
       where: { business_date: businessDate },
+      update: {
+        total_sales: { increment: totalSales },
+        total_transactions: { increment: 1 },
+        cash_sales: { increment: cashSales },
+        qris_sales: { increment: qrisSales },
+      },
+      create: {
+        business_date: businessDate,
+        total_sales: totalSales,
+        total_transactions: 1,
+        cash_sales: cashSales,
+        qris_sales: qrisSales,
+      },
     });
-
-    if (dailyRow) {
-      const newTotalSales = dailyRow.total_sales + totalSales;
-      const newTotalTransactions = dailyRow.total_transactions + 1;
-      const newAverage = Math.round(newTotalSales / newTotalTransactions);
-
-      await tx.analyticsDaily.update({
-        where: { business_date: businessDate },
-        data: {
-          total_sales: { increment: totalSales },
-          total_transactions: { increment: 1 },
-          cash_sales: { increment: cashSales },
-          qris_sales: { increment: qrisSales },
-          average_transaction: newAverage,
-        },
-      });
-    } else {
-      await tx.analyticsDaily.create({
-        data: {
-          business_date: businessDate,
-          total_sales: totalSales,
-          total_transactions: 1,
-          cash_sales: cashSales,
-          qris_sales: qrisSales,
-          average_transaction: totalSales,
-        },
-      });
-    }
 
     // 2. Update AnalyticsHourly
     const hourStr = new Intl.DateTimeFormat('en-US', {

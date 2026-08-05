@@ -2,7 +2,8 @@ import prisma from '../../config/prisma';
 import { AnalyticsSummaryService } from './AnalyticsSummaryService';
 
 export class AnalyticsRebuildService {
-  static async rebuildAll() {
+  static async rebuildAll(params?: { from?: string; to?: string; date?: string }) {
+    console.log('Analytics rebuild initiated with parameters:', params);
     return prisma.$transaction(async (tx) => {
       // 1. Clear existing summary tables
       await tx.analyticsProductDaily.deleteMany();

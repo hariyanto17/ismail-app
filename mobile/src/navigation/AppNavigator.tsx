@@ -71,6 +71,7 @@ const ProfileStack = () => (
     <Stack.Screen name="DailyAnalytics" component={DailyAnalyticsScreen} options={{ title: 'Analisis Harian' }} />
     <Stack.Screen name="MonthlyAnalytics" component={MonthlyAnalyticsScreen} options={{ title: 'Analisis Bulanan' }} />
     <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Ganti Kata Sandi' }} />
+    <Stack.Screen name="StoreSettings" component={StoreSettingsScreen} options={{ title: 'Store Settings' }} />
   </Stack.Navigator>
 
 );

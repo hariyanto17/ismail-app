@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Switch } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Switch, Image } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+
+const productPlaceholder = require('../assets/product-placeholder.png');
 import {
   useGetProductsQuery,
   useGetCategoriesQuery,
@@ -28,6 +31,8 @@ export const ProductsScreen = ({ navigation }: any) => {
   const [price, setPrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [image, setImage] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const products = productsRes?.data || [];
   const categories = categoriesRes?.data || [];
@@ -38,6 +43,8 @@ export const ProductsScreen = ({ navigation }: any) => {
     setPrice('');
     setCategoryId(categories[0]?.id || '');
     setIsActive(true);
+    setImage(null);
+    setImagePreview(null);
     setModalVisible(true);
   };
 
@@ -47,7 +54,37 @@ export const ProductsScreen = ({ navigation }: any) => {
     setPrice(String(product.price));
     setCategoryId(product.category_id);
     setIsActive(product.is_active);
+    setImage(null);
+    setImagePreview(product.image_url || null);
     setModalVisible(true);
+  };
+
+  const handlePickImage = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: true,
+        quality: 0.8,
+      },
+      (response) => {
+        if (response.didCancel) return;
+        if (response.errorCode) {
+          showConfirmation({
+            title: 'Gagal Memilih Gambar',
+            message: response.errorMessage || 'Terjadi kesalahan',
+            confirmText: 'OK',
+            variant: 'danger',
+          });
+          return;
+        }
+        const asset = response.assets?.[0];
+        if (asset?.base64) {
+          const dataUri = `data:${asset.type || 'image/jpeg'};base64,${asset.base64}`;
+          setImage(dataUri);
+          setImagePreview(dataUri);
+        }
+      }
+    );
   };
 
   const handleSave = async () => {
@@ -82,12 +119,16 @@ export const ProductsScreen = ({ navigation }: any) => {
     }
 
     try {
-      const payload = {
+      const payload: any = {
         name,
         price: parsedPrice,
         category_id: categoryId,
         is_active: isActive,
       };
+
+      if (image) {
+        payload.image = image;
+      }
 
       if (editingId) {
         await updateProduct({ id: editingId, ...payload }).unwrap();
@@ -145,6 +186,11 @@ export const ProductsScreen = ({ navigation }: any) => {
           contentContainerStyle={styles.listContainer}
           renderItem={({ item }) => (
             <View style={styles.itemRow}>
+              {item.image_url ? (
+                <Image source={{ uri: item.image_url }} style={styles.productThumb} />
+              ) : (
+                <Image source={productPlaceholder} style={styles.productThumb} />
+              )}
               <View style={styles.productInfo}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.itemMeta}>
@@ -178,6 +224,14 @@ export const ProductsScreen = ({ navigation }: any) => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Ubah Produk' : 'Produk Baru'}</Text>
             
+            <TouchableOpacity style={styles.imagePickerButton} onPress={handlePickImage}>
+              {imagePreview ? (
+                <Image source={{ uri: imagePreview }} style={styles.imagePreview} />
+              ) : (
+                <Text style={styles.imagePickerText}>Pilih Foto Produk</Text>
+              )}
+            </TouchableOpacity>
+
             <TextInput
               style={styles.input}
               placeholder="Nama Produk"
@@ -420,6 +474,46 @@ const styles = StyleSheet.create({
   },
   halfBtn: {
     width: '48%',
+  },
+  productThumb: {
+    width: 60,
+    height: 60,
+    borderRadius: theme.borderRadius.sm,
+    marginRight: theme.spacing.md,
+  },
+  productThumbPlaceholder: {
+    backgroundColor: theme.colors.surfaceLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderStyle: 'dashed',
+  },
+  placeholderText: {
+    color: theme.colors.textMuted,
+    fontSize: 10,
+    textAlign: 'center',
+  },
+  imagePickerButton: {
+    backgroundColor: theme.colors.background,
+    borderColor: theme.colors.border,
+    borderWidth: 1,
+    borderRadius: theme.borderRadius.md,
+    height: 140,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+    overflow: 'hidden',
+  },
+  imagePickerText: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  imagePreview: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
 });
 export default ProductsScreen;

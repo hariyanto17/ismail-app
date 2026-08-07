@@ -173,7 +173,8 @@ export const StoreSettingsScreen = () => {
           variant: 'success',
         });
       } else {
-        await createRecipient(payload).unwrap();
+        const response = await createRecipient(payload).unwrap();
+        console.log('RESPONSE', response);
         showConfirmation({
           title: 'Sukses',
           message: 'Penerima berhasil ditambahkan',
@@ -593,7 +594,7 @@ export const StoreSettingsScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.pickerCard}>
             <Text style={styles.pickerCardHeader}>Pilih Hari Tutup</Text>
-            
+
             <View style={styles.dayGridContainer}>
               {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                 <TouchableOpacity

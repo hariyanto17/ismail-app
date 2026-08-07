@@ -9,7 +9,7 @@ if (fs.existsSync(target)) {
   if (content.includes('jcenter.bintray.com') || content.includes('repo.spring.io')) {
     // Replace buildscript repositories blocks
     content = content.replace(
-      /maven\s*\{\s*url\s*["']https:\/\/jcenter\.bintray\.com\/?["']\s*\}/g,
+      /(maven|jcenter)\s*\{\s*url\s*["']https:\/\/jcenter\.bintray\.com\/?["']\s*\}/g,
       'google()'
     );
     content = content.replace(

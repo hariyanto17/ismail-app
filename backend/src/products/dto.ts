@@ -4,6 +4,7 @@ export interface CreateProductDto {
   price: number;
   is_active?: boolean;
   image_url?: string | null;
+  image?: string;
 }
 
 export interface UpdateProductDto {
@@ -12,6 +13,7 @@ export interface UpdateProductDto {
   price?: number;
   is_active?: boolean;
   image_url?: string | null;
+  image?: string;
 }
 
 export interface ProductResponseDto {

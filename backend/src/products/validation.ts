@@ -6,6 +6,7 @@ export const createProductSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters long').max(100),
     price: z.number().int().nonnegative('Price must be a positive integer'),
     is_active: z.boolean().optional(),
+    image: z.string().optional(),
   }),
 });
 
@@ -15,5 +16,6 @@ export const updateProductSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters long').max(100).optional(),
     price: z.number().int().nonnegative('Price must be a positive integer').optional(),
     is_active: z.boolean().optional(),
+    image: z.string().optional(),
   }),
 });

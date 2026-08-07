@@ -2,6 +2,7 @@ import { ProductRepository, ProductWithCategory } from './repository';
 import { CreateProductDto, UpdateProductDto, ProductResponseDto } from './dto';
 import { NotFoundError } from '../common/errors';
 import prisma from '../config/prisma';
+import { uploadImage, replaceImage, deleteImage } from '../common/imageStorage';
 
 export class ProductService {
   constructor(private productRepository: ProductRepository) {}
@@ -41,7 +42,15 @@ export class ProductService {
       throw new NotFoundError('Category not found');
     }
 
-    const product = await this.productRepository.create(data);
+    let imageUrl = null;
+    if (data.image) {
+      imageUrl = await uploadImage(data.image, data.name);
+    }
+
+    const product = await this.productRepository.create({
+      ...data,
+      image_url: imageUrl,
+    });
     return this.mapToResponse(product);
   }
 
@@ -60,7 +69,20 @@ export class ProductService {
       }
     }
 
-    const updated = await this.productRepository.update(id, data);
+    let imageUrl = data.image_url !== undefined ? data.image_url : product.image_url;
+    if (data.image) {
+      const title = data.name || product.name;
+      if (product.image_url) {
+        imageUrl = await replaceImage(product.image_url, data.image, title);
+      } else {
+        imageUrl = await uploadImage(data.image, title);
+      }
+    }
+
+    const updated = await this.productRepository.update(id, {
+      ...data,
+      image_url: imageUrl,
+    });
     return this.mapToResponse(updated);
   }
 
@@ -69,6 +91,15 @@ export class ProductService {
     if (!product) {
       throw new NotFoundError('Product not found');
     }
+
+    if (product.image_url) {
+      try {
+        await deleteImage(product.image_url);
+      } catch (err) {
+        console.error('Failed to delete image from storage:', err);
+      }
+    }
+
     await this.productRepository.delete(id);
   }
 }

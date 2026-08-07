@@ -28,8 +28,8 @@ export class WhatsappClient {
       });
 
       if (!response.ok) return false;
-      const data = (await response.json()) as WhatsappStatusResponse;
-      return data.ready === true;
+      const data = (await response.json()) as any;
+      return data.ready === true || data.data?.ready === true;
     } catch {
       return false;
     }
@@ -43,7 +43,7 @@ export class WhatsappClient {
           'Content-Type': 'application/json',
           'x-api-key': this.apiKey,
         },
-        body: JSON.stringify({ to, message }),
+        body: JSON.stringify({ phone: to, to, message }),
       });
 
       const data = (await response.json()) as any;
